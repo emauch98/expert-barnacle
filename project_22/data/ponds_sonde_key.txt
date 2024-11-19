@@ -1,0 +1,12 @@
+Pond	Sonde	Treatment
+B2P3	Sonde06	D
+B2P2	Sonde09	S
+B1P1	Sonde16	S
+B3P3	Sonde10	S
+B3P1	Sonde14	D
+B3P2	Sonde13	D
+B3P0	Sonde11	NF
+ERL85	Sonde07	NF
+B2P4	Sonde08	NF
+ERL152	Sonde15	NF
+ERL122	Sonde12	NF

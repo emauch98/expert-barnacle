@@ -1,0 +1,595 @@
+---
+title: "Profiling-plots 2022"
+author: "Emanuel Mauch"
+date: "2023-08-02"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+The following plots are Thermoclines from the ponds used for the Stickleback-
+experiments in 2022.
+For some of the ponds, the profiling was not done in 2022, and data from 2021
+was subsequently taken.
+This profiles are used to estimate the actively mixed layer depth of the ponds, which
+are subsequently used to model metabolism (GPP, R, NEP).
+
+# Pond-profiles
+## B3P3
+
+This is the code for B3P3, the other ponds were analysed equivalently:
+```{r, message=FALSE}
+# Step 0: set up R-script
+rm(list= ls())
+
+setwd("~/ZIVI_EAWAG/project_22")
+
+source("~/ZIVI_EAWAG/project_22/Moritz_Luehrig_paper_stuff/methods_packages.R")
+library(GGally)
+
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B3P3 June 21 22.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+
+# Rename columns
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 464-555, where the profiling was done
+prof <- prof[c(464:531),]
+
+# Create the thermocline plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B3P3 2022")
+
+# I interpert that the mixed layer depth is only about 0.5 meters deep, since
+# Temperature starts to decline rapidly after 0.5 meters from about 14.25 down to 13.00
+# at 1.75 meters.
+# -> mixed layer depth = 0.5m
+```
+I interpert that the mixed layer depth is only about 0.5 meters deep, since
+Temperature starts to decline rapidly after 0.5 meters from about 14.25 down to 13.00
+at 1.75 meters. -> mixed layer depth = 0.5m
+
+## B1P1
+```{r, echo=FALSE, warning=FALSE}
+#####
+# This is the profile from 2021, since for 2022, it was not available
+#####
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B1P1Sept10_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 756-813, where the profiling was done
+prof <- prof[c(756:813),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B1P1 2021")
+
+
+# The drop in temperature is very small (<0.5°C) and I therefore conlcude that the
+# actively mixed layer depth at that time was at least 3 meters.
+
+# -> set mixed layer depth to maximum profiling depth (3.163m)
+```
+The drop in temperature is very small (<0.5°C) and I therefore conlcude that the
+actively mixed layer depth at that time was at least 3 meters. -> set mixed layer depth to maximum profiling depth (3.163m)
+
+## B2P2
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B2P2 June 19 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 219-278, where the profiling was done
+prof <- prof[c(219:278),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B2P2 2022")
+
+# Same temperature across all depths
+
+# -> set mixed layer depth to maximum profiling depth (1.948m)
+```
+Same temperature across all depths. -> set mixed layer depth to maximum profiling depth (1.948m)
+
+## B2P3
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B2P3 June 19 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 216-283, where the profiling was done
+prof <- prof[c(216:283),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B2P3 2022")
+
+# Same temperature across all depths
+
+# -> set mixed layer depth to maximum profiling depth (3.144m)
+```
+Same temperature across all depths. -> set mixed layer depth to maximum profiling depth (3.144m)
+
+# B3P1
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B3P1 June 20 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 173-238, where the profiling was done
+prof <- prof[c(173:238),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B3P1 2022")
+
+# Same temperature across all depths
+
+# -> set mixed layer depth to maximum profiling depth (2.026m)
+```
+Same temperature across all depths. -> set mixed layer depth to maximum profiling depth (2.026m)
+
+# B3P2
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B3P2 June 20 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 150-188, where the profiling was done
+prof <- prof[c(150:188),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B3P2 2022")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (1.928m)
+```
+Same temperature across all depths (difference < 0.5°C). -> set mixed layer depth to maximum profiling depth (1.928m)
+
+## B3P0
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B3P0 June 20 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 257-307, where the profiling was done
+prof <- prof[c(257:307),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B3P0 2022")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (1.713m)
+```
+Same temperature across all depths (difference < 0.5°C). -> set mixed layer depth to maximum profiling depth (1.713m)
+
+## ERL85
+```{r, echo=FALSE, warning=FALSE}
+#####
+# This is the profile from 2021, since for 2022, it was not available
+#####
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/ERL85_Sept21_2021.csv", sep = ",")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 992-1108, where the profiling was done
+prof <- prof[c(992:1108),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile ERL85 2021")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (1.713m)
+```
+Same temperature across all depths (difference < 0.5°C). -> set mixed layer depth to maximum profiling depth (1.713m)
+
+## B2P4
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B2P4 June 19 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 789-869, where the profiling was done
+prof <- prof[c(789:869),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B2P4 2022")
+
+# Quite a steep thermocline from 2m downwards
+
+# -> set mixed layer depth to 2m
+```
+Quite a steep thermocline from 2m downwards. -> set mixed layer depth to 2m
+
+## ERL152
+```{r, echo=FALSE, warning=FALSE}
+#####
+# This is the profile from 2021, since for 2022, it was not available
+#####
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/ERL152_Sept16_2021.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 521-565, where the profiling was done
+prof <- prof[c(521:565),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile ERL152 2021")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (4.117m)
+```
+Same temperature across all depths (difference < 0.5°C). -> set mixed layer depth to maximum profiling depth (4.117m)
+
+## B3P4
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B3P4 June 21 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 505-543, where the profiling was done
+prof <- prof[c(505:543),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B3P4 2022")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (1.879)
+```
+Same temperature across all depths (difference < 0.5°C). -> set mixed layer depth to maximum profiling depth (1.879)
+
+# Appendix
+## Version and packages used to generate this report:
+```{r, echo=FALSE}
+cat(paste(Sys.time(), Sys.timezone(), "\n"))
+sessionInfo()
+```
+
+## Code used to generate the plots:
+```{r, eval=FALSE}
+# Profile B1P1 -----------------------------------------------------------------
+
+#####
+# This is the profile from 2021, since for 2022, it was not available
+#####
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B1P1Sept10_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 756-813, where the profiling was done
+prof <- prof[c(756:813),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B1P1 2021")
+
+
+# The drop in temperature is very small (<0.5°C) and I therefore conlcude that the
+# actively mixed layer depth at that time was at least 3 meters.
+
+# -> set mixed layer depth to maximum profiling depth (3.163m)
+
+# Profile B2P2 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B2P2 June 19 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 219-278, where the profiling was done
+prof <- prof[c(219:278),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B2P2 2022")
+
+# Same temperature across all depths
+
+# -> set mixed layer depth to maximum profiling depth (1.948m)
+
+# Profile B2P3 -----------------------------------------------------------------
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B2P3 June 19 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 216-283, where the profiling was done
+prof <- prof[c(216:283),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B2P3 2022")
+
+# Same temperature across all depths
+
+# -> set mixed layer depth to maximum profiling depth (3.144m)
+
+# Profile B3P1 -----------------------------------------------------------------
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B3P1 June 20 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 173-238, where the profiling was done
+prof <- prof[c(173:238),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B3P1 2022")
+
+# Same temperature across all depths
+
+# -> set mixed layer depth to maximum profiling depth (2.026m)
+
+# Profile B3P2 -----------------------------------------------------------------
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B3P2 June 20 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 150-188, where the profiling was done
+prof <- prof[c(150:188),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B3P2 2022")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (1.928m)
+
+# Profile B3P0 -----------------------------------------------------------------
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B3P0 June 20 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 257-307, where the profiling was done
+prof <- prof[c(257:307),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B3P0 2022")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (1.713m)
+
+# Profile ERL85 -----------------------------------------------------------------
+
+#####
+# This is the profile from 2021, since for 2022, it was not available
+#####
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/ERL85_Sept21_2021.csv", sep = ",")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 992-1108, where the profiling was done
+prof <- prof[c(992:1108),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile ERL85 2021")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (1.713m)
+
+# Profile B2P4 -----------------------------------------------------------------
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B2P4 June 19 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 789-869, where the profiling was done
+prof <- prof[c(789:869),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B2P4 2022")
+
+# Quite a steep thermocline from 2m downwards
+
+# -> set mixed layer depth to 2m
+
+# Profile ERL152 ---------------------------------------------------------------
+
+#####
+# This is the profile from 2021, since for 2022, it was not available
+#####
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/ERL152_Sept16_2021.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 521-565, where the profiling was done
+prof <- prof[c(521:565),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile ERL152 2021")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (4.117m)
+
+# Profile B3P4 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_22/sonde_profiling/B3P4 June 21 22.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V8", "V23")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 505-543, where the profiling was done
+prof <- prof[c(505:543),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)),
+     ylab = "Depth (m)", main = "Profile B3P4 2022")
+
+# Same temperature across all depths (difference < 0.5°C)
+
+# -> set mixed layer depth to maximum profiling depth (1.879)
+```
+
+
+
+
+
+

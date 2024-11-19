@@ -1,0 +1,43 @@
+---
+title: "Sensor status report 2022"
+author: "Emanuel Mauch"
+date: "2023-07-13"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, include=FALSE}
+setwd("~/ZIVI_EAWAG/project_22/sondes_status_report_2022")
+rm(list= ls())
+source("~/ZIVI_EAWAG/project_22/Moritz_Luehrig_paper_stuff/methods_packages.R")
+```
+
+
+This is a status report of the sondes used for the stickleback-experiments 2022 in Greenland.
+The upper table shows the measuring period of each of the 11 sondes used (the data for sonde2 pond ERL122 apparently became inaccessible), the number of observations and some comments.
+
+```{r, echo=FALSE}
+status <- read.delim("~/ZIVI_EAWAG/project_22/sondes_status_report_2022/sondes_status_2022.txt")
+print(status)
+```
+
+The lower table is a completeness-check of the observations, during the period where we had complete days (cutting at the beginning and in the end to ensure equal periods of time for all sondes). It is apparent that all data is complete except the one from Sonde15 in pond ERL152.
+
+```{r, echo=FALSE}
+complete <- fread("~/ZIVI_EAWAG/project_22/data/sonde_data_completeness.txt", sep="\t")
+print(complete)
+```
+
+# Summary:
+
+* Two sondes apparently lost power early (sonde15 pond ERL152, sonde12 pond B3P4).
+* One sonde didn't measure optical dissovled oxygen and its derivates (ODO, sonde11 pond B3P0).
+* Additionally, sonde15 in pond ERL152 displayed huge data-gaps when plotted (visible in the completeness-table). Either there must have been some problem with the sonde itsef, or the data-gaps occurred when the data was transferred to the field laptop and 
+subsequently splitted.
+
+
+

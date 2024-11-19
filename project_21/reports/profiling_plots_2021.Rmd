@@ -1,0 +1,627 @@
+---
+title: "Profiling plots 2021"
+author: "Emanuel Mauch"
+date: "2023-08-10"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+The following plots are Thermoclines from the ponds used for the Stickleback-
+experiments in 2021.
+This profiles are used to estimate the actively mixed layer depth of the ponds, which
+are subsequently used to model metabolism (GPP, R, NEP).
+
+# Pond-profiles
+## B1P1
+
+This is the code for B1P1, the other ponds were analysed equivalently:
+```{r, message=FALSE}
+# Step 0: set up R-script ------------------------------------------------------
+rm(list= ls())
+
+setwd("~/ZIVI_EAWAG/project_21")
+
+source("~/ZIVI_EAWAG/project_21/Moritz_Luehrig_paper_stuff/methods_packages.R")
+library(GGally)
+
+# Profile B1P1 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B1P1Sept10_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+
+# Rename columns
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 762:812, where the profiling was done
+prof <- prof[c(762:812),]
+
+# Create the thermocline plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B1P1 2021-09-10")
+```
+I interpret that the mixed layer depth in B1P1 was at least 3.163m on Sept 10 2021,
+since the demperature differences from top to bottom are only minimal (< 0.5°C).
+
+## B2P2
+```{r, echo=FALSE, warning=FALSE}
+# Profile B2P2 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B2P2_Sept12_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 936-964, where the profiling was done
+prof <- prof[c(936:964),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B2P2 2021-09-12")
+```
+I interpret that the mixed layer depth in B2P2 was at least 1.916m on Sept 12 2021,
+since the demperature differences from top to bottom are only minimal (< 0.1°C)
+
+
+## B3P3
+```{r, echo=FALSE, warning=FALSE}
+# Profile B3P3 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B3P3_Sept13_2021.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 811:856, where the profiling was done
+prof <- prof[c(811:856),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B3P3 2021-09-13")
+```
+I interpret that the mixed layer depth in B3P3 was at least 3.933m on Sept 13 2021,
+since the temperature differences from top to bottom are only minimal (< 0.2°C)
+
+## B2P3
+```{r, echo=FALSE, warning=FALSE}
+# Profile B2P3 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B2P3_Sept12_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 588:619, where the profiling was done
+prof <- prof[c(588:619),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B2P3 2021-09-12")
+```
+I interpret that the mixed layer depth in B2P3 was at least 2.842 on Sept 12 2021,
+since the temperature differences from top to bottom are only minimal (< 0.1°C)
+
+# B3P1
+```{r, echo=FALSE, warning=FALSE}
+# Profile B3P1 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B3P1_Sept13_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 943:966, where the profiling was done
+prof <- prof[c(943:966),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B3P1 2021-09-13")
+```
+I interpret that the mixed layer depth in B3P1 was at least 1.494m on Sept 13 2021,
+since the temperature differences from top to bottom are only minimal (< 0.2°C).
+
+# B3P2
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B3P2_Sept13_2021.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 979:1028, where the profiling was done
+prof <- prof[c(979:1028),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B3P2 2021-09-13")
+```
+I interpret that the mixed layer depth in B3P2 was at least 2.988m on Sept 13 2021,
+since the temperature differences from top to bottom are only minimal (< 0.1°C).
+
+## B3P0
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B3P0_Sept13_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 649:694, where the profiling was done
+prof <- prof[c(649:694),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B3P0 2021-09-13")
+```
+I interpret that the mixed layer depth in B3P0 was at least 2.978m on Sept 13 2021,
+since the temperature differences from top to bottom are only minimal (< 0.1°C).
+
+## ERL85
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/ERL85_Sept21_2021.csv", sep = ",")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 991:1108, where the profiling was done
+prof <- prof[c(992:1108),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile ERL85 2021-09-21")
+```
+I interpret that the mixed layer depth in ERL85 was at least 6.819m on Sept 21 2021,
+since the temperature differences from top to bottom are only minor (< 0.6°C).
+
+## B2P4
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B2P4_Sept15_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 912:969, where the profiling was done
+prof <- prof[c(912:969),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B2P4 2021-09-15")
+```
+Even though the temperature difference from top to bottom is about 1.4°C,
+I would say that the mixed layer depth of B2P4 on Sept 15 2021 was at least
+4.857m.
+
+## ERL152
+```{r, echo=FALSE, warning=FALSE}
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/ERL152_Sept16_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 521:565, where the profiling was done
+prof <- prof[c(521:565),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile ERL152 2021-09-16")
+```
+I interpret that the mixed layer depth in ERL152 was at least 4.117m on Sept 16 2021,
+since the temperature differences from top to bottom are only minor (< 0.2°C)
+
+## ERL122
+```{r, echo=FALSE, warning=FALSE}
+# Profile ERL122 ---------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/ERL122_Sept16_2021.csv", sep = ";")
+# In lake ERL122, the profile datset seems to be cut right about at the moment the sondes
+# reaches its deepest point
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 515:561, where the profiling was done
+prof <- prof[c(515:561),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile ERL122 2021-09-16")
+```
+I interpret that the mixed layer depth in ERL122 was at least 3.783m on Sept 16 2021,
+since the temperature differences from top to bottom are only minor (< 0.4°C)
+
+## B1P4 
+```{r, echo=FALSE, warning=FALSE}
+# Profile B1P4 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B1P4_Sept11_2021.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 1148:1193, where the profiling was done
+prof <- prof[c(1148:1193),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B1P4 2021-09-11")
+```
+I interpret that the mixed layer depth in B1P4 was at least 1.681m on Sept 11 2021,
+since the temperature differences from top to bottom are only minimal (< 0.1°C).
+
+# Appendix
+## Version and packages used to generate this report:
+```{r, echo=FALSE}
+cat(paste(Sys.time(), Sys.timezone(), "\n"))
+sessionInfo()
+```
+
+## Code used to generate the plots:
+```{r, eval=FALSE}
+################################################################################
+# This is a code to plot the sondes profiles of 2021 to determine a reasonable
+# actively mixed layer depth for the metabolism models of the different ponds
+################################################################################
+
+# Step 0: set up R-script ------------------------------------------------------
+rm(list= ls())
+
+setwd("~/ZIVI_EAWAG/project_21")
+
+source("~/ZIVI_EAWAG/project_21/Moritz_Luehrig_paper_stuff/methods_packages.R")
+library(GGally)
+
+# Profile B1P1 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B1P1Sept10_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+
+# Rename columns
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 762:812, where the profiling was done
+prof <- prof[c(762:812),]
+
+# Create the thermocline plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B1P1 2021-09-10")
+
+# I interpret that the mixed layer depth in B1P1 was at least 3.163m on Sept 10 2021,
+# since the demperature differences from top to bottom are only minimal (< 0.5°C)
+
+
+# Profile B2P2 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B2P2_Sept12_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 936-964, where the profiling was done
+prof <- prof[c(936:964),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B2P2 2021-09-12")
+
+# I interpret that the mixed layer depth in B2P2 was at least 1.916m on Sept 12 2021,
+# since the demperature differences from top to bottom are only minimal (< 0.1°C)
+
+# Profile B3P3 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B3P3_Sept13_2021.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 811:856, where the profiling was done
+prof <- prof[c(811:856),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B3P3 2021-09-13")
+
+# I interpret that the mixed layer depth in B3P3 was at least 3.933m on Sept 13 2021,
+# since the temperature differences from top to bottom are only minimal (< 0.2°C)
+
+# Profile B2P3 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B2P3_Sept12_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 588:619, where the profiling was done
+prof <- prof[c(588:619),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B2P3 2021-09-12")
+
+# I interpret that the mixed layer depth in B2P3 was at least 2.842 on Sept 12 2021,
+# since the temperature differences from top to bottom are only minimal (< 0.1°C)
+
+# Profile B3P1 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B3P1_Sept13_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 943:966, where the profiling was done
+prof <- prof[c(943:966),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B3P1 2021-09-13")
+
+# I interpret that the mixed layer depth in B3P1 was at least 1.494m on Sept 13 2021,
+# since the temperature differences from top to bottom are only minimal (< 0.2°C)
+
+# Profile B3P2 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B3P2_Sept13_2021.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 979:1028, where the profiling was done
+prof <- prof[c(979:1028),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B3P2 2021-09-13")
+
+# I interpret that the mixed layer depth in B3P2 was at least 2.988m on Sept 13 2021,
+# since the temperature differences from top to bottom are only minimal (< 0.1°C)
+
+# Profile B3P0 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B3P0_Sept13_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 649:694, where the profiling was done
+prof <- prof[c(649:694),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B3P0 2021-09-13")
+
+# I interpret that the mixed layer depth in B3P0 was at least 2.978m on Sept 13 2021,
+# since the temperature differences from top to bottom are only minimal (< 0.1°C)
+
+# Profile ERL85 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/ERL85_Sept21_2021.csv", sep = ",")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 991:1108, where the profiling was done
+prof <- prof[c(992:1108),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile ERL85 2021-09-21")
+
+# I interpret that the mixed layer depth in ERL85 was at least 6.819m on Sept 21 2021,
+# since the temperature differences from top to bottom are only minor (< 0.6°C)
+
+# Profile B2P4 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B2P4_Sept15_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 912:969, where the profiling was done
+prof <- prof[c(912:969),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B2P4 2021-09-15")
+
+# Even though the temperature difference from top to bottom is about 1.4°C,
+# I would say that the mixed layer depth of B2P4 on Sept 15 2021 was at least
+# 4.857m.
+
+# Profile ERL152 ---------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/ERL152_Sept16_2021.csv", sep = ";")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 521:565, where the profiling was done
+prof <- prof[c(521:565),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile ERL152 2021-09-16")
+# I interpret that the mixed layer depth in ERL152 was at least 4.117m on Sept 16 2021,
+# since the temperature differences from top to bottom are only minor (< 0.2°C)
+
+# Profile ERL122 ---------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/ERL122_Sept16_2021.csv", sep = ";")
+# In lake ERL122, the profile datset seems to be cut right about at the moment the sondes
+# reaches its deepest point
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 515:561, where the profiling was done
+prof <- prof[c(515:561),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile ERL122 2021-09-16")
+# I interpret that the mixed layer depth in ERL122 was at least 3.783m on Sept 16 2021,
+# since the temperature differences from top to bottom are only minor (< 0.4°C)
+
+# Profile B1P4 -----------------------------------------------------------------
+
+prof <- fread("~/ZIVI_EAWAG/project_21/sondes_profiling/B1P4_Sept11_2021.txt", sep = "\t")
+
+# Choose columns of interest
+prof <- prof[,c("V10", "V29")]
+prof <- setnames(prof, c("Depth_m", "Temp_C"))
+
+# As numeric
+prof$Depth_m <- as.numeric(prof$Depth_m)
+prof$Temp_C <- as.numeric(prof$Temp_C)
+
+# Choose rows 1148:1193, where the profiling was done
+prof <- prof[c(1148:1193),]
+
+# plot
+plot(prof$Temp_C, prof$Depth_m, type = "o", xlab = "Temperature (°C)",
+     ylim = c(max(prof$Depth_m), min(prof$Depth_m)), ylab = "Depth (m)",
+     main = "Profile B1P4 2021-09-11")
+# I interpret that the mixed layer depth in B1P4 was at least 1.681m on Sept 11 2021,
+# since the temperature differences from top to bottom are only minimal (< 0.1°C)
+```
+

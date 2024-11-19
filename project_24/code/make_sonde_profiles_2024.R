@@ -1,0 +1,217 @@
+################################################################################
+# This script is meant to import, cut, store, and plot all sonde profiles
+# from 2024 in Greenland.
+# The result is a single dataset of profiles for all ponds in 2024.
+# Please note, that it is important that the .csv files are encoded
+# as UTF-8, otherwise the code will not work.
+# In excel, one can save a file as UTF-8 .csv.
+################################################################################
+
+# Step 0: set up R-script ------------------------------------------------------
+rm(list= ls())
+
+# Packages ad functions from Moritz Luehrig's paper
+source("../../Literature/Moritz_Luehrig_paper_stuff/methods_packages.R")
+require(GGally)
+require(gridExtra)
+# For images
+require(grDevices)
+
+# Step 1: merge all raw data files into a single big one -----------------------
+# Please ensure that all files are UTF-8 encoded (you'll get an error message
+# that hints to that problem if you try run the following script)
+
+path = "../data/sondes_profiling_raw"
+filenames <- list.files(path=path, pattern=".csv")
+files<-data.table(NULL)
+
+system.time(for(i in filenames){
+  filepath <- file.path(path,paste(i,sep=""))
+  dummy1<-fread(filepath,
+                colClasses = "character" ,
+                sep = ";",
+                header = FALSE,
+                fill=TRUE,
+                encoding ="UTF-8",
+                quote = FALSE)
+  
+  rownumb<-dummy1[V1 %like% "(MM/DD/YYYY)", which=TRUE]+1
+  colname<-dummy1[V1 %like% "(MM/DD/YYYY)"]
+  colname <- iconv(as.character(colname), from = "UTF-8", to = "UTF-8//IGNORE")
+  colname <- gsub("µ", "", colname)  # Remove mu character
+  colname <- gsub("°", "", colname)  # Remove degree symbol
+  colname<-gsub(" ", "",(gsub("[[:punct:]]", "",c(lapply(colname,as.character)))))
+  colname <- make.unique(colname)  # Ensure unique column names
+  colname<-unlist(strsplit(colname,"\t"))
+  dummy2<-dummy1[rownumb:.N]
+  setnames(dummy2,colname)
+  dummy2[,(colname[c(3,5:length(dummy2))]):=lapply(.SD, as.numeric),.SDcols=colname[c(3,5:length(dummy2))]]
+  dummy2$Pond<-sub("_J.*", "", i) # Extract pond
+  dummy2$Source_file<-i # Extract source file
+  dummy2$Day <- strsplit(i, "_")[[1]][2] # Extract day
+  files<-rbindlist(list(files, dummy2), fill=TRUE)
+})
+
+all <- files
+
+# Unify the 2 columns
+all <- all %>%
+  mutate(TimeHHMMSS = coalesce(TimeHHMMSS, TimeHHmmss))
+
+# select columns to keep
+all <- all[,c("DateMMDDYYYY", "TimeHHMMSS", "Pond", "Day", "Depthm", "ChlorophyllRFU", "CondScm", "SpCondScm",
+              "fDOMRFU", "ODOmgL", "ODOsat", "BGAPCRFU", "pH", "TempC")]
+
+# Step 2: format time, rename columns ------------------------------------------
+# format date & time
+all$DateMMDDYYYY<-mdy(all$DateMMDDYYYY)
+all$Date_time<-ymd_hms(paste(all$DateMMDDYYYY, all$TimeHHMMSS))
+setnames(all,1:2,c("Date","Time"))
+
+# exclude "Date" and "Time"
+all <- all[,!c("Date", "Time")]
+
+# reorder
+all <- all[,c("Date_time", "Pond", "Day", "Depthm", "ChlorophyllRFU", "CondScm", "SpCondScm",
+              "fDOMRFU", "ODOmgL", "ODOsat", "BGAPCRFU", "pH", "TempC")]
+
+# rename
+setnames(all, c("Date_time", "Pond", "Day", "Depth_m", "Chlorophyll_RFU", "Cond_uScm", "SpCond_uScm",
+                "fDOM_RFU", "ODO_mgL", "ODO_sat", "BGAPC_RFU", "pH", "Temp_C"))
+
+# debug: remove duplicate values
+all <- unique(all, by=c("Pond", "Date_time"))
+
+# check the variable types
+str(all)
+
+# Step 3: cut the profiles -----------------------------------------------------
+# Here, I will cut the profile subsets of the individual ponds to the relevant
+# range
+
+# The current cutting is as follows:
+# All the rows where depth is < 0.65m are cut (in the beginning, the sonde is shallow for a long
+# time, until it is slowly lowered), and all the rows after the
+# maximum depth are cut as well (after reaching the bottom, the profiling is done)
+
+# Initialize an empty list to store results for each pond
+result_list <- list()
+
+# Loop through each unique pond
+for (pond in unique(all$Pond)) {
+  # Subset the data for the current pond
+  pond_data <- all[Pond == pond]
+  
+  # Filter out Depth_m < 0.65
+  pond_data <- pond_data[Depth_m >= 0.65]
+  
+  # Find the maximum depth for the current pond
+  max_depth <- max(pond_data$Depth_m, na.rm = TRUE)
+  
+  # Cut off all values after the maximum depth
+  pond_data <- pond_data[seq_len(which.max(pond_data$Depth_m))]
+  
+  # Optionally, reset row names
+  rownames(pond_data) <- NULL
+  
+  # Store the result in the list
+  result_list[[pond]] <- pond_data
+}
+
+# Combine all subsets back into a single data.table if needed
+all <- rbindlist(result_list)
+
+# Order the observations by ascending depth
+all <- all %>%
+  arrange(Pond, Depth_m)
+
+# save
+fwrite(all, "../data/sondes_profiling_cut/merged_profiles_cut_2024.txt", sep = "\t")
+
+# Step 4: control plots --------------------------------------------------------
+# Here I wanna plot the profiles of different parameters
+# x-axis: Parameter; y-axis: Depth
+
+# Temperature
+# Get unique pond names
+ponds <- unique(all$Pond)
+
+plots_TempC <- lapply(ponds, function(pond_name) {
+  dat <- subset(all, Pond == pond_name)
+  day <- unique(dat$Day)[1]
+  ggplot(data = dat, aes(x = Temp_C, y = Depth_m)) +
+    geom_point() +
+    geom_path() +
+    scale_y_reverse() +
+    labs(title = paste("Thermocline", pond_name, ",", day, "2024"))
+})
+
+# Save the plot as a .png
+png("../results_profiling/profiling_TempC_2024.png", width = 2000, height = 2000)
+grid.arrange(grobs = plots_TempC, ncol = 7)
+dev.off()
+
+# Chlorophyll_RFU
+plots_Chloro <- lapply(ponds, function(pond_name) {
+  dat <- subset(all, Pond == pond_name)
+  day <- unique(dat$Day)[1]
+  ggplot(data = dat, aes(x = Chlorophyll_RFU, y = Depth_m)) +
+    geom_point() +
+    geom_path() +
+    scale_y_reverse() +
+    labs(title = paste("Chlorophyll RFU", pond_name, ",", day, "2024"))
+})
+
+# Save the plot as a .png
+png("../results_profiling/profiling_ChloroRFU_2024.png", width = 2000, height = 2000)
+grid.arrange(grobs = plots_Chloro, ncol = 7)
+dev.off()
+
+# fDOM RFU
+plots_fDOM <- lapply(ponds, function(pond_name) {
+  dat <- subset(all, Pond == pond_name)
+  day <- unique(dat$Day)[1]
+  ggplot(data = dat, aes(x = fDOM_RFU, y = Depth_m)) +
+    geom_point() +
+    geom_path() +
+    scale_y_reverse() +
+    labs(title = paste("fDOM RFU", pond_name, ",", day, "2024"))
+})
+
+# Save the plot as a .png
+png("../results_profiling/profiling_fDOM_2024.png", width = 2000, height = 2000)
+grid.arrange(grobs = plots_fDOM, ncol = 7)
+dev.off()
+
+# ODO_mgL
+plots_ODO <- lapply(ponds, function(pond_name) {
+  dat <- subset(all, Pond == pond_name)
+  day <- unique(dat$Day)[1]
+  
+  ggplot(data = dat, aes(x = ODO_mgL, y = Depth_m)) +
+    geom_point() +  # Plot the points
+    geom_path() +  # Connect the points by row order
+    scale_y_reverse() + # Reverse depth scale
+    labs(title = paste("Dissolved Oxygen mg/L", pond_name, ",", day, "2024"))
+})
+
+# Save the plot as a .png
+png("../results_profiling/profiling_ODO_2024.png", width = 2000, height = 2000)
+grid.arrange(grobs = plots_ODO, ncol = 7)
+dev.off()
+
+# BGA-PC RFU
+plots_BGAPC <- lapply(ponds, function(pond_name) {
+  dat <- subset(all, Pond == pond_name)
+  day <- unique(dat$Day)[1]
+  ggplot(data = dat, aes(x = BGAPC_RFU, y = Depth_m)) +
+    geom_point() +
+    geom_path() +
+    scale_y_reverse() +
+    labs(title = paste("BGA-PC RFU", pond_name, ",", day, "2024"))
+})
+
+# Save the plot as a .png
+png("../results_profiling/profiling_BGAPC_2024.png", width = 2000, height = 2000)
+grid.arrange(grobs = plots_BGAPC, ncol = 7)
+dev.off()
