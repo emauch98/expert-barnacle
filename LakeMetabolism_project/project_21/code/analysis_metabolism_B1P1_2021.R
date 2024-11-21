@@ -21,7 +21,7 @@
 # Step 0: set up R-script ------------------------------------------------------
 rm(list= ls())
 
-# Packages ad functions from Moritz Luehrig's paper
+# Packages and functions from Moritz Luehrig's paper
 source("../../Literature/Moritz_Luehrig_paper_stuff/methods_packages.R")
 
 # Estimating lake metabolism with free-water oxygen
