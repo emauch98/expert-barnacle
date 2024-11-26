@@ -114,7 +114,6 @@ thresholds <- c("B1P1"=0.9, "B1P2"=0.325, "B1P3"=0.75,  "B1P4" = 0.6, "B2P2"=1,
                 "B3P4"=0.6, "EFL2"=1, "ERL122"=1, "ERL152"=1, "ERL186"=0.52, "ERL32"=1.25,
                 "ERL33"=1, "ERL5"=1, "ERL85"=1, "ERL87"=0.55, "ERL88"=0.325 , "L26"=1.25)
 
-
 # Loop through each unique pond
 for (pond in unique(all$Pond)) {
   # Subset the data for the current pond
@@ -125,9 +124,6 @@ for (pond in unique(all$Pond)) {
   
   # Filter out Depth_m below the unique threshold for this pond
   pond_data <- pond_data[Depth_m >= threshold]
-  
-  # Find the maximum depth for the current pond
-  max_depth <- max(pond_data$Depth_m, na.rm = TRUE)
   
   # Cut off all values after the maximum depth
   pond_data <- pond_data[seq_len(which.max(pond_data$Depth_m))]  # Retain up to the maximum depth
