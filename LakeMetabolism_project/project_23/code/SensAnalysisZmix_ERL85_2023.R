@@ -1,210 +1,45 @@
-fwrite(all, "../results_metabolism/merged_results_complete_2023.txt", sep = "\t")
-# ------------------------------------------------------------------------------
-# Plot: R
-# Define the color palette for the ponds with fish
-fish_colors <- c("B1P1" = "#1f78b4",
-"B2P2" = "#a6d8e7",
-"B3P3" = "#85c0e0",
-"B2P3" = "#54b0d9",
-"B3P1" = "#0088cc",
-"B3P2" = "#005f8a")
-# Define the color palette for the ponds without fish
-no_fish_colors <- c("B2P4" = "#d9d9d9",
-"B1P4" = "#b0b0b0",
-"ERL85" = "#808080",
-"B3P0" = "#595959",
-"ERL122" = "#404040")
-# Combine both color sets
-custom_colors <- c(fish_colors, no_fish_colors)
-p1 = ggplot() +
-# Ponds with Fish
-geom_line(data = subset(all, Pond %in% names(fish_colors)), aes(y=GPP, x=Date, color = Pond), lwd = 1.1, alpha = 0.5) +
-geom_errorbar(data = subset(all, Pond %in% names(fish_colors)),
-aes(ymin = GPP - GPPsd, ymax = GPP + GPPsd, x = Date, color = Pond),
-width = 0.2) +
-# Ponds without Fish
-geom_line(data = subset(all, Pond %in% names(no_fish_colors)), aes(y=GPP, x=Date, color = Pond), lwd = 1.1, alpha = 0.5) +
-geom_errorbar(data = subset(all, Pond %in% names(no_fish_colors)),
-aes(ymin = GPP - GPPsd, ymax = GPP + GPPsd, x = Date, color = Pond),
-width = 0.2) +
-labs(y = expression(paste("GPP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")")),
-x = "Date") +
-theme_minimal() +
-scale_color_manual(values = custom_colors) +  # Apply custom color scale
-theme(
-axis.title.x = element_text(size = 20),
-axis.text.x = element_text(size = 18),
-axis.title.y = element_text(size = 20),
-axis.text.y = element_text(size = 18),
-legend.title = element_text(size = 20),  # Remove legend title
-legend.text = element_text(size = 18)
-)
-# Display the plot
-plot(p1)
-# Save the plot as a .png
-png("../results_metabolism/GPP_complete_2023.png", width = 1600, height = 1000)
-print(p1)
-dev.off()
-# ------------------------------------------------------------------------------
-# R
-# Fish
-p2 = ggplot() +
-# Ponds with Fish
-geom_line(data = subset(all, Pond %in% names(fish_colors)), aes(y=R, x=Date, color = Pond), lwd = 1.1, alpha = 0.5) +
-geom_errorbar(data = subset(all, Pond %in% names(fish_colors)),
-aes(ymin = R - Rsd, ymax = R + Rsd, x = Date, color = Pond),
-width = 0.2) +
-# Ponds without Fish
-geom_line(data = subset(all, Pond %in% names(no_fish_colors)), aes(y=R, x=Date, color = Pond), lwd = 1.1, alpha = 0.5) +
-geom_errorbar(data = subset(all, Pond %in% names(no_fish_colors)),
-aes(ymin = R - Rsd, ymax = R + Rsd, x = Date, color = Pond),
-width = 0.2) +
-labs(y = expression(paste("R (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")")),
-x = "Date") +
-theme_minimal() +
-scale_color_manual(values = custom_colors) +  # Apply custom color scale
-theme(
-axis.title.x = element_text(size = 20),
-axis.text.x = element_text(size = 18),
-axis.title.y = element_text(size = 20),
-axis.text.y = element_text(size = 18),
-legend.title = element_text(size = 20),  # Remove legend title
-legend.text = element_text(size = 18),
-)
-plot(p2)
-# Save the plot as a .png
-png("../results_metabolism/R_complete_2023.png", width = 1600, height = 1000)
-print(p2)
-dev.off()
-# ------------------------------------------------------------------------------
-# NEP
-# Fish
-p3 = ggplot() +
-# Ponds with Fish
-geom_line(data = subset(all, Pond %in% names(fish_colors)), aes(y=NEP, x=Date, color = Pond), lwd = 1.1, alpha = 0.5) +
-geom_errorbar(data = subset(all, Pond %in% names(fish_colors)),
-aes(ymin = NEP - NEPsd, ymax = NEP + NEPsd, x = Date, color = Pond),
-width = 0.2) +
-# Ponds without Fish
-geom_line(data = subset(all, Pond %in% names(no_fish_colors)), aes(y=NEP, x=Date, color = Pond), lwd = 1.1, alpha = 0.5) +
-geom_errorbar(data = subset(all, Pond %in% names(no_fish_colors)),
-aes(ymin = NEP - NEPsd, ymax = NEP + NEPsd, x = Date, color = Pond),
-width = 0.2) +
-labs(y = expression(paste("NEP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")")),
-x = "Date") +
-theme_minimal() +
-scale_color_manual(values = custom_colors) +  # Apply custom color scale
-theme(
-axis.title.x = element_text(size = 20),
-axis.text.x = element_text(size = 18),
-axis.title.y = element_text(size = 20),
-axis.text.y = element_text(size = 18),
-legend.title = element_text(size = 20),  # Remove legend title
-legend.text = element_text(size = 18),
-)
-plot(p3)
-# Save the plot as a .png
-png("../results_metabolism/NEP_complete_2023.png", width = 1600, height = 1000)
-print(p3)
-dev.off()
-# ------------------------------------------------------------------------------
-# Plot daily average of the 3 metabolism measures for Fish vs. no Fish ---------
-# Import the results dataset
-all<- fread("../results_metabolism/merged_results_complete_2023.txt", sep = "\t")
-# Calculate average GPP per day and treatment
-mean_gpp <- all[, .(mean_GPP = mean(GPP)), by = .(Date, Treatment)]
-# Calculate average R per day and treatment
-mean_r <- all[, .(mean_R = mean(R)), by = .(Date, Treatment)]
-# Calculate average NEP per day and treatment
-mean_nep <- all[, .(mean_NEP = mean(NEP)), by = .(Date, Treatment)]
-# merge
-daily_means <- merge(mean_gpp, mean_r, by = c("Date", "Treatment"))
-daily_means <- merge(daily_means, mean_nep, by = c("Date", "Treatment"))
-# save
-fwrite(daily_means, "../results_metabolism/merged_results_daily_mean_complete_2023.txt", sep = "\t")
-# Plot -------------------------------------------------------------------------
-# Plot mean daily GPP Fish vs. no Fish
-p4 = ggplot(data = daily_means, aes(x = Date, y = mean_GPP, color = Treatment)) +
-theme_minimal() +
-geom_line(lwd = 1.1, alpha = 0.5) +
-geom_point(alpha = 0.5, size = 3) +
-ylab(expression(paste("mean GPP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
-scale_color_manual(values = c("Fish" = "#1f78b4", "no Fish" = "#808080")) +
-theme(
-axis.title.x = element_text(size = 20),
-axis.text.x = element_text(size = 18),
-axis.title.y = element_text(size = 20),
-axis.text.y = element_text(size = 18),
-legend.title = element_text(size = 20),
-legend.text = element_text(size = 18),
-)
-plot(p4)
-# Save the plot as a .png
-png("../results_metabolism/GPP_daily_means_complete_2023.png", width = 2000, height = 1000)
-print(p4)
-dev.off()
-# ------------------------------------------------------------------------------
-# Plot mean daily R Fish vs. no Fish
-p5 = ggplot(data = daily_means, aes(x = Date, y = mean_R, color = Treatment)) +
-geom_line(lwd = 1.1, alpha = 0.5) +
-geom_point(alpha = 0.5, size = 3) +
-theme_minimal() +
-ylab(expression(paste("mean R (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
-scale_color_manual(values = c("Fish" = "#1f78b4", "no Fish" = "#808080")) +
-theme(
-axis.title.x = element_text(size = 20),
-axis.text.x = element_text(size = 18),
-axis.title.y = element_text(size = 20),
-axis.text.y = element_text(size = 18),
-legend.title = element_text(size = 20),
-legend.text = element_text(size = 18),
-)
-plot(p5)
-# Save the plot as a .png
-png("../results_metabolism/R_daily_means_complete_2023.png", width = 2000, height = 1000)
-print(p5)
-dev.off()
-# ------------------------------------------------------------------------------
-# Plot mean daily NEP Fish vs. no Fish
-p6 = ggplot(data = daily_means, aes(x = Date, y = mean_NEP, color = Treatment)) +
-geom_line(lwd = 1.1, alpha = 0.5) +
-geom_point(alpha = 0.5, size = 3) +
-theme_minimal() +
-ylab(expression(paste("mean NEP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
-scale_color_manual(values = c("Fish" = "#1f78b4", "no Fish" = "#808080")) +
-theme(
-axis.title.x = element_text(size = 20),
-axis.text.x = element_text(size = 18),
-axis.title.y = element_text(size = 20),
-axis.text.y = element_text(size = 18),
-legend.title = element_text(size = 20),
-legend.text = element_text(size = 18),
-)
-plot(p6)
-# Save the plot as a .png
-png("../results_metabolism/NEP_daily_means_complete_2023.png", width = 2000, height = 1000)
-print(p6)
-dev.off()
+################################################################################
+# This script is meant to perform a simple sensitivity analysis of the
+# Bayesian lake metabolism model with regards to mixed layer depth.
+# Mixed layer depth is important for estimation of lake metabolism, since it
+# defines the amount of water column
+# getting into regular contact with the atmosphere and impacts the extend of air-water
+# gas transfer of oxygen. Mixed layer depth is highly dependent on weather conditions,
+# and hence regular profiles of at least temperature are normally necessary to
+# estimate it. However, we do not have regular profiles for our pond experiment.
+# Therefore, having a general idea of how strongly mixed layer depth impacts
+# metabolism estimates is crucial.
+# We use the example of ERL85 in 2023 for this sensitivity analysis.
+################################################################################
+
 # Step 0: set up R-script ------------------------------------------------------
 rm(list= ls())
+
 # Packages ad functions from Moritz Luehrig's paper
 source("../../Literature/Moritz_Luehrig_paper_stuff/methods_packages.R")
+
 # Estimating lake metabolism with free-water oxygen
 # See "report_analysis_metabolism_B3P3_2022" for further details
 require(LakeMetabolizer)
+
 # For plotting
 require(GGally)
+
 # Imputation of NAs for time-series (our NAs are due to outlier processing)
 require(imputeTS)
+
 # For Bayesian lake metabolism modeling
 require(R2jags) # Also, installing JAGS is necessary under
 # http://www.sourceforge.net/projects/mcmc-jags/files
+
 require(ggpubr)
 require(grid) # Arranging multiple plots
 require(grDevices) # Saving png files
+
 # This is our complete dataset of the sondes measurements
 # Measurement Interval: 5 minutes mostly
 all <- fread("../data/processed_data_sondes/ponds_sonde_data_all.txt")
+
 # Importing the metadata
 # Wind and irradiation
 # Measurement Interval: 1 hour, hourly averages
@@ -212,124 +47,177 @@ all <- fread("../data/processed_data_sondes/ponds_sonde_data_all.txt")
 # https://dataverse.geus.dk/dataset.xhtml?persistentId=doi:10.22008/FK2/IW73UU
 # wind sensor height: 2.65 + 0.4 = ca 3.05m
 meta <- fread("../data/metadata_metabolism_analysis/metadata_2023.txt")
+
 # Step 1: data formatting ------------------------------------------------------
+
 # Select columns to keep from our time series
 all <- all[, c("Pond", "Date_time", "ODO_mgL", "Temp_C")]
+
 # Select Pond B1P1 (Treatment: Fish)
 all <- subset(all, Pond == "ERL85")
+
 # Rename
 all <- setnames(all,c("Pond", "datetime", "do.obs", "wtr"))
+
 # Isolate the desired period (described in the introduction)
 all <- all[c(25:6936),]
+
 # choose desired period for the metadata
 meta <- meta[c(3:579),]
+
 # rename
 meta <- setnames(meta,c("datetime", "dsr_cor", "wsp"))
+
 meta <- meta %>%
-mutate(datetime = as.POSIXct(format(datetime, format = "%Y-%m-%d %H:01:00", tz = "UTC"), tz = "UTC"))
+  mutate(datetime = as.POSIXct(format(datetime, format = "%Y-%m-%d %H:01:00", tz = "UTC"), tz = "UTC"))
+
 # Create a new inflated dataset with measurements every 5 minutes
 # The hourly mean will be assigned to every observation (5min-interval) within that hour
 meta_ext <- meta %>%
-complete(datetime = seq(from = min(datetime), to = max(datetime), by = "5 min"))
+  complete(datetime = seq(from = min(datetime), to = max(datetime), by = "5 min"))
+
 # Fill the missing wind speed and irradiation values with the corresponding hourly values using 'fill'
 meta_ext <- meta_ext %>%
-fill(wsp, .direction = "up") %>%
-fill(dsr_cor, .direction = "up")
+  fill(wsp, .direction = "up") %>%
+  fill(dsr_cor, .direction = "up")
+
 # Shift wind speed and irradiation one row up
 meta_ext <- meta_ext %>%
-mutate(wsp = lead(wsp, default = last(wsp))) %>%
-mutate(dsr_cor = lead(dsr_cor, default = last(dsr_cor)))
+  mutate(wsp = lead(wsp, default = last(wsp))) %>%
+  mutate(dsr_cor = lead(dsr_cor, default = last(dsr_cor)))
+
 # Ommit last row (not included for estimation)
 meta_ext <- meta_ext[-nrow(meta_ext), ]
+
 # Reset row names for the final result
 rownames(meta_ext) <- NULL
+
 # Step 2: merge the 2 datasets -------------------------------------------------
 all <- merge(meta_ext, all, by = "datetime")
+
 # Step 3: Missing data imputation ----------------------------------------------
 # We need a complete ODO_mgL timeseries. Therefore we will impute the missing values
 # here, with the package "imputeTS", which is specifically designed to impute time-series
 # observations.
+
 colSums(is.na(all))
+
 # Make a timeseries object
 ts <- ts(all$do.obs, frequency = 288)
+
 # Impute with imputeTS
 imp_all <- na_ma(ts) # use this function!
 imp_all <- data.table(imp_all)
 imp_all$datetime <- all$datetime
+
 # Check for missing values in the imputed dataset
 sum(is.na(imp_all)) # No missing values anymore
+
 # Check imputation by plotting the original and the imputed dataset
 plot(x = all$datetime, y = all$do.obs, type = "l", col = "blue", lwd = 2)
 lines(x = imp_all$datetime, y = imp_all$imp_all, type = "l",
-col = rgb(1, 0, 0, alpha = 0.3), lwd = 2)
+      col = rgb(1, 0, 0, alpha = 0.3), lwd = 2)
 # The imputation worked very well!
+
 # Replace original column with imputed column
 all$do.obs <- imp_all$imp_all
 sum(is.na(all))
+
 # Step 4: Model choice ---------------------------------------------------------
 # Gas transfer coefficient model: kvachon()
 # - needs wind speed, sensor height, and lake area
+
 # Lake metabolism model: metab.bayesian()
 # Most flexible model
+
 # Step 5: Calculate k600 using the Cole method ---------------------------------
+
 # This function needs specific column names
 all$wnd <- all$wsp
 all$wsp <- NULL
+
 # Normalize wind to 10m sensor height
 wind.scale <- wind.scale(all, wnd.z = 3.05)
+
 all <- merge(all, wind.scale, by = "datetime")
+
 all$wnd <- all$wnd_10
 all$wnd_10 <- NULL
+
 # Also only the 2 columns of interest, otherwise it gets confused
 all.600 <- all[,c("datetime","wnd")]
 k600.vachon <- k.vachon(all.600, lake.area = 18200) # From LakeMaster file
+
 # Merge
 all <- merge(all, k600.vachon, by = "datetime")
+
 # Step 6: Calculate gas-specific k600 ------------------------------------------
+
 kgas <- k600.2.kGAS(all)
+
 # Merge
 all <- merge(all, kgas, by = "datetime")
+
 # only keep k.gas
 all$k600 <- NULL
+
 # Step 7: Calculate dissolved oxygen saturated (do.sat) ------------------------
+
 # I know that the sonde has do.sat measurements, but I have more faith
 # in the authors of this paper to calculate a more accurate do.sat then the
 # sonde-intern calculations.
+
 o2.sat <- o2.at.sat(all[,c('datetime','wtr')])
+
 # Merge
 all <- merge(all, o2.sat, by = "datetime")
+
 # Step 8: Derive photosynthetically active radiation (par) from shortwave irradiation (sw) ----
 # Here, I take the downwelling shortwave irradiation (tilt corrected) from the
 # QAS_L automated weather station a couple of kilometers away from Narsarsuaq
 # It's the closest weather station measuring this parameter, that I could find.
+
 # Derive par from sw
 par <- sw.to.par(all, sw.col = "dsr_cor")
 rownames(par) <- NULL
+
 # Merge
 all <- merge(all, par[,c("datetime", "par")], by = "datetime")
+
 # Step 9: Calculate Actively mixed layer depth (z.mix) -------------------------
+
 ################################################################################
 # Set different mixed layer depths of sensitivity analysis
 # For some reason, metab.bayesian does not recognize z.mix columns
 # if they are not named "z.mix", hence I have to create a dataset for each z.mix
 ################################################################################
+
 all2 <- all
 all2$z.mix <- 0.5
+
 all3 <-all
 all3$z.mix <- 1
+
 all4 <- all
 all4$z.mix <- 2
+
 all5 <- all
 all5$z.mix <- 3
+
 all6 <- all
 all6$z.mix <- 4
+
 all7 <- all
 all7$z.mix <- 5
+
 all8 <- all
 all8$z.mix <- 6
+
 all9 <- all
 all9$z.mix <- 7
+
 # Step 10: Fit model -----------------------------------------------------------
+
 # Choose columns to keep
 all2 <- all2[,c("datetime", "do.obs", "do.sat", "k.gas", "z.mix", "par", "wtr")]
 all3 <- all3[,c("datetime", "do.obs", "do.sat", "k.gas", "z.mix", "par", "wtr")]
@@ -339,38 +227,47 @@ all6 <- all6[,c("datetime", "do.obs", "do.sat", "k.gas", "z.mix", "par", "wtr")]
 all7 <- all7[,c("datetime", "do.obs", "do.sat", "k.gas", "z.mix", "par", "wtr")]
 all8 <- all8[,c("datetime", "do.obs", "do.sat", "k.gas", "z.mix", "par", "wtr")]
 all9 <- all9[,c("datetime", "do.obs", "do.sat", "k.gas", "z.mix", "par", "wtr")]
+
 # Mixed layer depth 0.5m over the whole observation period
 bayesian.res_0.5 <- metab(all2, method="bayesian", wtr.name='wtr', do.obs.name='do.obs',
-irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
-do.sat.name = "do.sat")
+                          irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
+                          do.sat.name = "do.sat")
+
 # Mixed layer depth 1m over the whole observation period
 bayesian.res_1 <- metab(all3, method="bayesian", wtr.name='wtr', do.obs.name='do.obs',
-irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
-do.sat.name = "do.sat")
+                        irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
+                        do.sat.name = "do.sat")
+
 # Mixed layer depth 2m over the whole observation period
 bayesian.res_2 <- metab(all4, method="bayesian", wtr.name='wtr', do.obs.name='do.obs',
-irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
-do.sat.name = "do.sat")
+                        irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
+                        do.sat.name = "do.sat")
+
 # Mixed layer depth 3m over the whole observation period
 bayesian.res_3 <- metab(all5, method="bayesian", wtr.name='wtr', do.obs.name='do.obs',
-irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
-do.sat.name = "do.sat")
+                        irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
+                        do.sat.name = "do.sat")
+
 # Mixed layer depth 4m over the whole observation period
 bayesian.res_4 <- metab(all6, method="bayesian", wtr.name='wtr', do.obs.name='do.obs',
-irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
-do.sat.name = "do.sat")
+                        irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
+                        do.sat.name = "do.sat")
+
 # Mixed layer depth 5m over the whole observation period
 bayesian.res_5 <- metab(all7, method="bayesian", wtr.name='wtr', do.obs.name='do.obs',
-irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
-do.sat.name = "do.sat")
+                        irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
+                        do.sat.name = "do.sat")
+
 # Mixed layer depth 6m over the whole observation period
 bayesian.res_6 <- metab(all8, method="bayesian", wtr.name='wtr', do.obs.name='do.obs',
-irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
-do.sat.name = "do.sat")
+                        irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
+                        do.sat.name = "do.sat")
+
 # Mixed layer depth 7m over the whole observation period
 bayesian.res_7 <- metab(all9, method="bayesian", wtr.name='wtr', do.obs.name='do.obs',
-irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
-do.sat.name = "do.sat")
+                        irr.name='par', z.mix = "z.mix", k.gas.name = "k.gas",
+                        do.sat.name = "do.sat")
+
 # Get standard deviations of estimates
 bayesian.sd_0.5 <- attr(bayesian.res_0.5, "metab.sd")
 bayesian.sd_1 <- attr(bayesian.res_1, "metab.sd")
@@ -380,6 +277,7 @@ bayesian.sd_4 <- attr(bayesian.res_4, "metab.sd")
 bayesian.sd_5 <- attr(bayesian.res_5, "metab.sd")
 bayesian.sd_6 <- attr(bayesian.res_6, "metab.sd")
 bayesian.sd_7 <- attr(bayesian.res_7, "metab.sd")
+
 # Create a date variable
 bayesian.res_0.5$Date <- as.Date(paste(bayesian.res_0.5$year, "-", bayesian.res_0.5$doy, sep = ""), format = "%Y-%j")
 bayesian.res_1$Date <- as.Date(paste(bayesian.res_1$year, "-", bayesian.res_1$doy, sep = ""), format = "%Y-%j")
@@ -389,6 +287,7 @@ bayesian.res_4$Date <- as.Date(paste(bayesian.res_4$year, "-", bayesian.res_4$do
 bayesian.res_5$Date <- as.Date(paste(bayesian.res_5$year, "-", bayesian.res_5$doy, sep = ""), format = "%Y-%j")
 bayesian.res_6$Date <- as.Date(paste(bayesian.res_6$year, "-", bayesian.res_6$doy, sep = ""), format = "%Y-%j")
 bayesian.res_7$Date <- as.Date(paste(bayesian.res_7$year, "-", bayesian.res_7$doy, sep = ""), format = "%Y-%j")
+
 # Select columns to keep
 bayesian.res_0.5 <- bayesian.res_0.5[,c("Date", "GPP", "R", "NEP")]
 bayesian.res_1 <- bayesian.res_1[,c("Date", "GPP", "R", "NEP")]
@@ -398,6 +297,7 @@ bayesian.res_4 <- bayesian.res_4[,c("Date", "GPP", "R", "NEP")]
 bayesian.res_5 <- bayesian.res_5[,c("Date", "GPP", "R", "NEP")]
 bayesian.res_6 <- bayesian.res_6[,c("Date", "GPP", "R", "NEP")]
 bayesian.res_7 <- bayesian.res_7[,c("Date", "GPP", "R", "NEP")]
+
 # Create a date variable
 bayesian.sd_0.5$Date <- as.Date(paste(bayesian.sd_0.5$year, "-", bayesian.sd_0.5$doy, sep = ""), format = "%Y-%j")
 bayesian.sd_1$Date <- as.Date(paste(bayesian.sd_1$year, "-", bayesian.sd_1$doy, sep = ""), format = "%Y-%j")
@@ -407,6 +307,7 @@ bayesian.sd_4$Date <- as.Date(paste(bayesian.sd_4$year, "-", bayesian.sd_4$doy, 
 bayesian.sd_5$Date <- as.Date(paste(bayesian.sd_5$year, "-", bayesian.sd_5$doy, sep = ""), format = "%Y-%j")
 bayesian.sd_6$Date <- as.Date(paste(bayesian.sd_6$year, "-", bayesian.sd_6$doy, sep = ""), format = "%Y-%j")
 bayesian.sd_7$Date <- as.Date(paste(bayesian.sd_7$year, "-", bayesian.sd_7$doy, sep = ""), format = "%Y-%j")
+
 # Select columns to keep
 bayesian.sd_0.5 <- bayesian.sd_0.5[,c("Date", "GPPsd", "Rsd", "NEPsd")]
 bayesian.sd_1 <- bayesian.sd_1[,c("Date", "GPPsd", "Rsd", "NEPsd")]
@@ -416,6 +317,7 @@ bayesian.sd_4 <- bayesian.sd_4[,c("Date", "GPPsd", "Rsd", "NEPsd")]
 bayesian.sd_5 <- bayesian.sd_5[,c("Date", "GPPsd", "Rsd", "NEPsd")]
 bayesian.sd_6 <- bayesian.sd_6[,c("Date", "GPPsd", "Rsd", "NEPsd")]
 bayesian.sd_7 <- bayesian.sd_7[,c("Date", "GPPsd", "Rsd", "NEPsd")]
+
 # Merge
 bayesian.merge_0.5 <- merge(bayesian.res_0.5, bayesian.sd_0.5, by = "Date")
 bayesian.merge_1 <- merge(bayesian.res_1, bayesian.sd_1, by = "Date")
@@ -425,6 +327,7 @@ bayesian.merge_4 <- merge(bayesian.res_4, bayesian.sd_4, by = "Date")
 bayesian.merge_5 <- merge(bayesian.res_5, bayesian.sd_5, by = "Date")
 bayesian.merge_6 <- merge(bayesian.res_6, bayesian.sd_6, by = "Date")
 bayesian.merge_7 <- merge(bayesian.res_7, bayesian.sd_7, by = "Date")
+
 # create Z.mix variable identifier
 bayesian.merge_0.5$z.mix <- "0.5m"
 bayesian.merge_1$z.mix <- "1m"
@@ -434,79 +337,102 @@ bayesian.merge_4$z.mix <- "4m"
 bayesian.merge_5$z.mix <- "5m"
 bayesian.merge_6$z.mix <- "6m"
 bayesian.merge_7$z.mix <- "7m"
+
 # Merge
 bayesian.merge.all <- rbind(bayesian.merge_0.5, bayesian.merge_1,
-bayesian.merge_2, bayesian.merge_3, bayesian.merge_4,
-bayesian.merge_5, bayesian.merge_6, bayesian.merge_7)
+                            bayesian.merge_2, bayesian.merge_3, bayesian.merge_4,
+                            bayesian.merge_5, bayesian.merge_6, bayesian.merge_7)
+
 # Step 11: Visualize the results -----------------------------------------------
+
 # GPP
 p1 = ggplot(data = bayesian.merge.all, aes(x=Date, y=GPP, color=z.mix)) + theme_light() +
-geom_line(data = subset(bayesian.merge.all, z.mix == "0.5m")) +
-geom_errorbar(aes(ymin = GPP-GPPsd, ymax = GPP+GPPsd), width = 0.12) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "1m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "2m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "3m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "4m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "5m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "6m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "7m")) +
-ylab(expression(paste("GPP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")")))
+  geom_line(data = subset(bayesian.merge.all, z.mix == "0.5m")) +
+  geom_errorbar(aes(ymin = GPP-GPPsd, ymax = GPP+GPPsd), width = 0.12) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "1m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "2m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "3m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "4m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "5m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "6m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "7m")) +
+  ylab(expression(paste("GPP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")")))
+
 # R
 p2 = ggplot(data = bayesian.merge.all, aes(x=Date, y=R, color=z.mix)) + theme_light() +
-geom_line(data = subset(bayesian.merge.all, z.mix == "0.5m")) +
-geom_errorbar(aes(ymin = R-Rsd, ymax = R+Rsd), width = 0.12) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "1m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "2m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "3m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "4m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "5m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "6m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "7m"))
+  geom_line(data = subset(bayesian.merge.all, z.mix == "0.5m")) +
+  geom_errorbar(aes(ymin = R-Rsd, ymax = R+Rsd), width = 0.12) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "1m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "2m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "3m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "4m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "5m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "6m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "7m"))
 ylab(expression(paste("R (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")")))
+
 # NEP
 p3 = ggplot(data = bayesian.merge.all, aes(x=Date, y=NEP, color=z.mix)) + theme_light() +
-geom_line(data = subset(bayesian.merge.all, z.mix == "0.5m")) +
-geom_errorbar(aes(ymin = NEP-NEPsd, ymax = NEP+NEPsd), width = 0.12) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "1m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "2m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "3m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "4m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "5m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "6m")) +
-geom_line(data = subset(bayesian.merge.all, z.mix == "7m"))
+  geom_line(data = subset(bayesian.merge.all, z.mix == "0.5m")) +
+  geom_errorbar(aes(ymin = NEP-NEPsd, ymax = NEP+NEPsd), width = 0.12) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "1m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "2m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "3m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "4m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "5m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "6m")) +
+  geom_line(data = subset(bayesian.merge.all, z.mix == "7m"))
 ylab(expression(paste("NEP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")")))
+
 # Plots of ecosystem parameters
 p4 = ggplot((all)) + theme_light() +
-geom_line(aes(y=do.obs, x=datetime), color = "gray17") +
-rremove("xlab") +
-ylab(expression(paste("DO (mg L",NULL^-1,")")))
+  geom_line(aes(y=do.obs, x=datetime), color = "gray17") +
+  rremove("xlab") +
+  ylab(expression(paste("DO (mg L",NULL^-1,")")))
+
 p5 = ggplot((all)) + theme_light() +
-geom_line(aes(y=do.sat, x=datetime), color = "gray17") +
-rremove("xlab") +
-ylab(expression(paste("Equilibrium\nDO concentration (mg L",NULL^-1,")")))
+  geom_line(aes(y=do.sat, x=datetime), color = "gray17") +
+  rremove("xlab") +
+  ylab(expression(paste("Equilibrium\nDO concentration (mg L",NULL^-1,")")))
+
 p6 = ggplot((all)) + theme_light() +
-geom_line(aes(y=wtr, x=datetime), color = "gray17") +
-rremove("xlab") +
-ylab("Temperature in °C")
+  geom_line(aes(y=wtr, x=datetime), color = "gray17") +
+  rremove("xlab") +
+  ylab("Temperature in °C")
+
 p7 = ggplot((all)) + theme_light() +
-geom_line(aes(y=par, x=datetime), color = "gray17") +
-rremove("xlab") +
-ylab(expression(paste("PAR (",mu,"mol m",NULL^-2," s",NULL^-1,")")))
+  geom_line(aes(y=par, x=datetime), color = "gray17") +
+  rremove("xlab") +
+  ylab(expression(paste("PAR (",mu,"mol m",NULL^-2," s",NULL^-1,")")))
+
 p8 = ggplot((all)) + theme_light() +
-geom_line(aes(y=k.gas, x=datetime), color = "gray17") +
-rremove("xlab") +
-ylab(expression(paste("Gas and temperature specific\ngas transfer coefficient (m",NULL^-1,")")))
+  geom_line(aes(y=k.gas, x=datetime), color = "gray17") +
+  rremove("xlab") +
+  ylab(expression(paste("Gas and temperature specific\ngas transfer coefficient (m",NULL^-1,")")))
+
 p9 = ggplot((all)) + theme_light() +
-geom_line(aes(y=wnd, x=datetime), color = "gray17") +
-rremove("xlab") +
-ylab("Wind speed (m/s)")
+  geom_line(aes(y=wnd, x=datetime), color = "gray17") +
+  rremove("xlab") +
+  ylab("Wind speed (m/s)")
+
 fig2 <- ggarrange(p1 + rremove("xlab"), p2 + rremove("xlab"), p3 + rremove("xlab"),
-p4 + rremove("xlab"), p5 + rremove("xlab"), p6 + rremove("xlab"),
-p7 + rremove("xlab"), p8 + rremove("xlab"), p9 + rremove("xlab"),
-nrow=5, ncol = 2,  common.legend = TRUE, legend = "right")
+                  p4 + rremove("xlab"), p5 + rremove("xlab"), p6 + rremove("xlab"),
+                  p7 + rremove("xlab"), p8 + rremove("xlab"), p9 + rremove("xlab"),
+                  nrow=5, ncol = 2,  common.legend = TRUE, legend = "right")
+
 annotate_figure(fig2, top = text_grob("Sensitivity analysis for z.mix in pond ERL85, 2023"))
+
 # Save the plot as a .png
 png("../results_SensAnalysis/SensAnalysisZmix_ERL85_2023.png", width = 2000,
-height = 1500, res = 150)
+    height = 1500, res = 150)
 annotate_figure(fig2, top = text_grob("Sensitivity analysis for z.mix in pond ERL85, 2023"))
 dev.off()
+
+
+
+
+
+
+
+
+
