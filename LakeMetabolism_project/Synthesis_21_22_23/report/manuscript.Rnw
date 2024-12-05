@@ -1,0 +1,198 @@
+%%
+%% Camera-ready submissions do not need line numbers, and
+%% should have this option removed.
+%%
+
+\documentclass[fleqn,11pt,lineno]{manuscript}
+%%\usepackage{setspace}
+%%\doublespacing
+\usepackage{soul}
+
+\newcommand{\beginsupplement}{%
+        \setcounter{table}{0}
+        \renewcommand{\thetable}{S\arabic{table}}%
+        \setcounter{figure}{0}
+        \renewcommand{\thefigure}{S\arabic{figure}}%
+     }
+
+\title{Template for manuscript}
+
+\author[1]{Author One}
+\author[1]{Author Two}
+\author[2,3]{Author Three}
+\author[1]{Author Four}
+\affil[1]{Author one affiliation}
+\affil[2]{Author two affiliation}
+\affil[3]{Author three affiliation}
+
+\corrauthor[1]{Author Four}{email@address}
+
+\keywords{Keyword1; Keyword2; Keyword3}
+
+\begin{abstract}
+This is the abstract.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% R specifications
+<<include = FALSE>>=
+# knitr
+library(knitr)
+opts_chunk$set(fig.path = 'plots/p', 
+               echo = FALSE, 
+               results = 'hide',
+               fig.height = 4.5,
+               fig.align = "center",
+               cache = TRUE)
+
+# packages
+require(xtable) # generating latex tables from datasets
+require(data.table) # data wrangling
+require(readxl) # importing excel tables
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\flushbottom
+\maketitle
+\thispagestyle{empty}
+
+\section*{Introduction}
+...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Materials and Methods}
+...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Results}
+...
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Discussion}
+...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Conclusions}
+...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Author contributions}
+...
+
+\section*{Institutional review}
+...
+
+\section*{Data availability} 
+...
+
+\section*{Funding}
+...
+
+\section*{Acknowledgments}
+...
+
+\section*{Conflicts of interest}
+...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliography{main}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\beginsupplement
+\renewcommand\figurename{Supplementary Figure}
+\renewcommand\tablename{Supplementary Table}
+
+\section*{Appendix}
+
+\subsection{Study design and setup} \label{subsec:design}
+
+In 2019, 12 glacial lakes ($N =$ 12) were chosen for an experiment near Narsarsuaq,
+Greenland (61.1567\textdegree{}N, -45.4254\textdegree{}E).
+These glacial lakes vary in area (0.21 to 1.82 hectares) and maximum
+depth (2 to 8 m), but are all clustered within a few
+kilometers of each other. All lakes were fishless at the beginning of the experiment.
+Six lakes were subsequently introduced with three-spined sticklebacks
+(\textit{Gasterosteus aculeatus}) from nearby lakes.
+Lake B1P1, B2P2, and B3P3 were introduced with \textit{Gasterosteus aculeatus} from a single
+population (lake L26, 61.253333\textdegree{}N, -45.529141\textdegree{}E),
+while lake B2P3, B3P1, and B3P2 were introduced with \textit{Gasterosteus aculeatus} from
+two populations (lake L26, 61.253333\textdegree{}N, -45.529141\textdegree{}E
+and lake ERL33, 61.118369\textdegree{}N, -45.580845\textdegree{}E).
+The remaining six lakes B1P4, B2P4, B3P0, ERL85, ERL122, and ERL152 were
+used as fishless control. For the purpose of this study, the origin
+of the introduced \textit{Gasterosteus aculeatus} is of minor importance,
+as they all originate from the same area (Supplementary Table~\ref{tab:lakes}).
+
+In 2021, 2022, and 2023, all 12 lakes were monitored over several days.
+For that purpose, EXO2 multiparameter sondes were installed
+(YSI, Yellow Springs, OH, USA), tracking ecosystem parameters with high
+frequency (2-minute intervals in 2021 and 2022, 5-minute intervals in
+2023 with the exception of ERL122, which was monitored in 15-minute intervals).
+For the purpose of this study, only dissolved oxygen and temperature measurements
+yielded from these sondes are relevant. The sensors were situated at a water depth
+of approximately 1-1.5 m in each lake. All optical sensors were
+wiped clean before every measurement with a built-in wiper.
+The monitoring period was 16 September-24 September in 2021, 22 June-3 July in 2022,
+and 22 June-17 July in 2023.
+
+<<laketable, results = "asis", echo=FALSE>>=
+# Import lakemaster file
+lakes <- read_excel("../../Organisation/GL_Lake_Master.xlsx")
+
+# Extract relevant ponds
+lakes <- lakes[c(18:23, 73:75, 78, 28, 83),]
+
+# Extract columns
+lakes <- lakes[,c("Lake", "Lat", "Long", "Areaha", "Altitude", "Depth")]
+
+# Rename lakes
+lakes$Lake <- c("B1P1", "B2P2", "B3P3", "B2P3", "B3P1", "B3P2", "B1P4", "B2P4",
+                "B3P0", "ERL85", "ERL122", "ERL152")
+
+# Rename
+setnames(lakes, c("Lake", "Latitude (°N)", "Longitude (°E)", "Area (hectare)",
+                  "Altitude (m)", "Maximum Depth (m)"))
+
+# Create treatment variable
+lakes$Treatment <- c("Fish","Fish","Fish","Fish","Fish","Fish",
+                   "No Fish","No Fish","No Fish","No Fish","No Fish","No Fish")
+
+# Reorder
+lakes <- lakes[,c("Lake", "Treatment", "Latitude (°N)",
+                  "Longitude (°E)", "Altitude (m)", "Area (hectare)",
+                  "Maximum Depth (m)")]
+
+# Make a latex table from dataset
+lakes <- xtable(lakes, align = c("l","l","l","l","l","l","l","l"),
+                digits = c(0,0,0,5,5,0,2,2),
+                caption = "Lakes included in the experiment, along with treatment
+                and general characteristics.", label = "tab:lakes")
+
+# Print
+print(lakes, include.rownames = FALSE, caption.placement = "top", booktabs = TRUE)
+@
+
+\subsection{Data sources} \label{subsec:source}
+
+Dissolved oxygen and water temperature measurements were yielded from EXO2 multiparameter
+sondes, as described in section~\ref{subsec:design}. For the purpose
+of estimating ecosystem metabolism, wind and irradiation data were yielded
+from the QAS\_L automated weather station near Narsarsuaq, Greenland \citep{metadata}.
+
+\subsubsection*{Weather data}
+
+\subsection{Data preparation}
+
+\subsection{Statistical analysis}
+
+\subsection{Implementation}
+
+\end{document}
+
