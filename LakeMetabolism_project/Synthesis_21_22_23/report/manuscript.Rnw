@@ -7,6 +7,15 @@
 %%\usepackage{setspace}
 %%\doublespacing
 \usepackage{soul}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    citecolor=blue,
+    }
+
 
 \newcommand{\beginsupplement}{%
         \setcounter{table}{0}
@@ -182,13 +191,47 @@ print(lakes, include.rownames = FALSE, caption.placement = "top", booktabs = TRU
 \subsection{Data sources} \label{subsec:source}
 
 Dissolved oxygen and water temperature measurements were yielded from EXO2 multiparameter
-sondes, as described in section~\ref{subsec:design}. For the purpose
+sondes, as described in section~\nameref{subsec:design}. For the purpose
 of estimating ecosystem metabolism, wind and irradiation data were yielded
-from the QAS\_L automated weather station near Narsarsuaq, Greenland \citep{metadata}.
-
-\subsubsection*{Weather data}
+from the Programme for Monitoring of the Greenland Ice Sheet (PROMICE), providing automatic
+weather station data \citep{Fausto:2021}.
+The dataset named \texttt{QAS\_L\_hour.csv} originating from the QAS\_L automated weather station
+near Narsarsuaq was downloaded from a
+\href{https://dataverse.geus.dk/citation?persistentId=doi:10.22008/FK2/IW73UU}{public database}
+provided by PROMICE \citep{metadata}.
 
 \subsection{Data preparation}
+
+The data preparation for estimating lake metabolism was done separately for each monitoring
+period (16 September-24 September 2021, 22 June-3 July 2022, and 22 June-17 July 2023).
+
+\subsubsection*{Sonde data}
+
+First, the raw sonde data from each lake were imported and merged into
+one dataset for a given monitoring period. The variables needed for lake metabolism
+estimation were water temperature (\textdegree{}C) and
+dissolved oxygen (mg/L). Next, an outlier analysis was performed by removing
+values higher than three times the median absolute deviation of all values in a
+sliding window of one day window size \citep{Luerig:2021}.
+After outlier removal, the time series of water temperature and dissolved oxygen
+were subsequently investigated for larger data gaps due to potential lack of sensor
+measurements over certain periods.
+
+To ensure overlapping estimation of lake metabolism, the data was subsequently
+cut to achieve equal starting and ending time points for all lakes during a given
+observation period. Due to large data gaps during the period of 2022, we chose
+to keep as much complete days as possible in order to estimate the maximum
+amount of days, rather than selecting the longest common monitoring period
+for all lakes.
+
+After cutting, missing values were replaced by a
+weighted moving average, where the weights of observations around the
+central value decrease exponentially \citep{Moritz:2017}.
+For larger data gaps spanning over several hours, we chose
+to not estimate lake metabolism for the affected days, rather than imputing these values.
+
+
+\subsubsection*{Weather data}
 
 \subsection{Statistical analysis}
 
