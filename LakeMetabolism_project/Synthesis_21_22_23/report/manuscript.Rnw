@@ -3,7 +3,8 @@
 %% should have this option removed.
 %%
 
-\documentclass[fleqn,11pt,lineno]{manuscript}
+\documentclass[11pt,lineno]{manuscript}
+%\setlength{\mathindent}{0pt}
 %%\usepackage{setspace}
 %%\doublespacing
 \usepackage{soul}
@@ -144,7 +145,7 @@ For that purpose, EXO2 multiparameter sondes were installed
 (YSI, Yellow Springs, OH, USA), tracking ecosystem parameters with high
 frequency (2-minute intervals in 2021 and 2022, 5-minute intervals in
 2023 with the exception of ERL122, which was monitored in 15-minute intervals).
-For the purpose of this study, only dissolved oxygen and temperature measurements
+For the purpose of this study, only dissolved oxygen (hereafter DO) and temperature measurements
 yielded from these sondes are relevant. The sensors were situated at a water depth
 of approximately 1-1.5 m in each lake. All optical sensors were
 wiped clean before every measurement with a built-in wiper.
@@ -190,7 +191,8 @@ print(lakes, include.rownames = FALSE, caption.placement = "top", booktabs = TRU
 
 \subsection{Data sources} \label{subsec:source}
 
-Dissolved oxygen and water temperature measurements were yielded from EXO2 multiparameter
+DO ($mg\,L^{-1}$) and water temperature (\textdegree{}$C$) measurements
+were yielded from EXO2 multiparameter
 sondes, as described in section~\nameref{subsec:design}. For the purpose
 of estimating ecosystem metabolism, wind and irradiation data were yielded
 from the Programme for Monitoring of the Greenland Ice Sheet (PROMICE), providing automatic
@@ -199,43 +201,131 @@ The dataset named \texttt{QAS\_L\_hour.csv} originating from the QAS\_L automate
 near Narsarsuaq was downloaded from a
 \href{https://dataverse.geus.dk/citation?persistentId=doi:10.22008/FK2/IW73UU}{public database}
 provided by PROMICE \citep{metadata}.
+Wind data was provided as average wind speed in hourly intervals ($m\,s^{-1}$), while
+irradiation was provided as downwelling shortwave irradiation additionally
+corrected for the tilt of the sensor ($W\,m^{-2}$).
 
-\subsection{Data preparation}
+\subsection{Data analysis pipeline} \label{subsec:pipeline}
 
-The data preparation for estimating lake metabolism was done separately for each monitoring
+The data preparation and analysis for estimating lake metabolism was done separately for each monitoring
 period (16 September-24 September 2021, 22 June-3 July 2022, and 22 June-17 July 2023).
 
-\subsubsection*{Sonde data}
-
 First, the raw sonde data from each lake were imported and merged into
-one dataset for a given monitoring period. The variables needed for lake metabolism
-estimation were water temperature (\textdegree{}C) and
-dissolved oxygen (mg/L). Next, an outlier analysis was performed by removing
+one dataset for a given monitoring period. The variables required for lake metabolism
+estimation were water temperature and
+DO. Next, an outlier analysis was performed by removing
 values higher than three times the median absolute deviation of all values in a
 sliding window of one day window size \citep{Luerig:2021}.
-After outlier removal, the time series of water temperature and dissolved oxygen
-were subsequently investigated for larger data gaps due to potential lack of sensor
+After outlier removal, the time series of water temperature and DO
+were plotted and subsequently investigated for larger data gaps due to potential lack of sensor
 measurements over certain periods.
 
 To ensure overlapping estimation of lake metabolism, the data was subsequently
 cut to achieve equal starting and ending time points for all lakes during a given
-observation period. Due to large data gaps during the period of 2022, we chose
+monitoring period. Due to large data gaps during the period of 2022, we chose
 to keep as much complete days as possible in order to estimate the maximum
 amount of days, rather than selecting the longest common monitoring period
 for all lakes.
 
-After cutting, missing values were replaced by a
-weighted moving average, where the weights of observations around the
-central value decrease exponentially \citep{Moritz:2017}.
-For larger data gaps spanning over several hours, we chose
-to not estimate lake metabolism for the affected days, rather than imputing these values.
+After cutting the sonde data, they were subsequently merged with the weather data.
+Since the weather data were collected in hourly intervals, they were inflated to match
+the measurement intervals of the sonde data (see section \nameref{subsec:design}).
 
+After merging sonde and weather data, potential missing values due to outlier removal
+were imputed by a weighted moving average, where the weights of observations around the
+central value to be imputed decrease exponentially \citep{Moritz:2017}.
+For larger data gaps spanning over several hours (due to sonde malfunction rather
+than outlier removal), we chose
+to not estimate lake metabolism for the affected days.\smallskip
 
-\subsubsection*{Weather data}
+All data preparation and analysis was done with the \texttt{R} programming language \citep{R}.
+To estimate lake metabolism, the package \texttt{LakeMetabolizer} was used \citep{Winslow:2016}.
+Specifically, a Bayesian framework to estimate whole lake metabolism from free-water
+DO by using the function \texttt{metab.bayesian} was chosen for
+this analysis \citep{Holtgrieve:2010}.
+In order to be able to fit the model, a minimum of 6 variables are needed as input:
 
-\subsection{Statistical analysis}
+\begin{enumerate}
+\item doobs: DO concentration measurements ($mg\,L^{-1}$)
+\item do.sat: Equilibrium DO concentration for specific temperature ($mg\,L^{-1}$, hereafter do.sat)
+\item k.gas: Gas and temperature specific gas transfer coefficient ($m^{-1}$, hereafter k.gas)
+\item par: Photosynthetically active radiation ($\mu{}mol\,m^{-2}\,s^{-1}$, hereafter par)
+\item z.mix: Actively mixed layer depth ($m$, hereafter z.mix)
+\item wtr: Water temperature (\textdegree{}$C$)
+\end{enumerate}
 
-\subsection{Implementation}
+Some of the variables listed above have to be derived from other time series data prior
+to estimating lake metabolism,
+namely do.sat, k.gas, par, and z.mix.
+do.sat was derived by using the function \texttt{o2.at.sat}, which calculates
+the equilibrium DO concentration of oxygen in water at supplied conditions.
+To estimate k.gas, a gas transfer coefficient model must be fit.
+The \texttt{LakeMetabolizer} package offers different methods, and we chose
+an empirical wind-based gas exchange model, introduced by Vachon and
+Prairie in 2013 \citep{Vachon:2013}. This model not only takes wind into
+consideration, but also lake area.
+All models of gas exchange 
+return a k\textsubscript{600} value, a gas exchange normalized to a Schmidt 
+number (Sc) of 600, or O\textsubscript{2} at 17.5 \textdegree{}$C$.
+After estimating k\textsubscript{600}, it must be transformed to k.gas by using the
+function \texttt{k600.2.kGAS} provided by the \texttt{LakeMetabolizer}
+package. par was derived from shortwave irradiation,
+which we had available (see section \nameref{subsec:source}).
+To achieve this transformation, we used the function \texttt{sw.to.par},
+which uses the simple empirical transformation $par = 2.114 \times sw$ \citep{Britton:1976}.
+To estimate z.mix, one normally needs a time series profile of water temperature
+or water density. Since we did not have such data available, we decided to
+simulate actively mixed layer depth by drawing from a uniform distribution
+with limits 0 and maximum depth of the lake. The reasoning behind this simulation
+is that, although the simulated time series of z.mix likely differing substantially
+from the actual, a possible treatment effect of fish versus no fish should still be
+consistent, given the simulation is performed equally in all lakes.\smallskip
+
+After performing the data preparation and the derivation for certain model
+inputs, the Bayesian lake metabolism model was fitted for each lake and
+monitoring period. The Bayesian model is special, as it considers 2 types
+of errors: Differences between the true data generating process and the process
+defined in the model (process error) and errors resulting from inaccuracies
+of DO measurements (observation error). Reflecting this philosophy, the
+Bayesian model distinguishes between 3 categories of DO values: $y$ represents
+the DO measurements, $\alpha$ the true but unknown DO values, and
+$\alpha^{\ast}$ the model's estimates of the true value.
+The observed DO measurements $y$ are modeled as random deviations from the true
+value $\alpha$:
+
+\begin{equation}
+y_{t} \sim N(\alpha_{t}, \tau_{v}),
+\label{eq:doobs}
+\end{equation}
+
+where $\tau_{v}$ is the precision of the observation error (precision is
+the reciprocal of variance).
+Note, that the Bayesian model fits parameter values by making a comparison
+between observed and theoretical values of DO.
+This comparison is made in equation \ref{eq:dotrue}, where we define the true value of 
+DO at time $t$, $\alpha_{t}$, as being normally distributed with mean 
+$\alpha^{\ast}_{t}$ and process precision $\tau_{w}$:
+
+\begin{equation}
+\alpha_{t} \sim N(\alpha^{\ast}_{t}, \tau_{w}),
+\label{eq:dotrue}
+\end{equation}
+
+where $\tau_{w}$ is the precision of the process error.
+The important distinction of process and observation error is that
+process error affects the state of the system at time
+$t + k(k=0, 1, ..., T-t)$, because the state evolves dynamically, whereas
+observation error only affects the state of the system at time $t$.
+
+Both $\tau_{v}$ and $\tau_{w}$ are given minimally informative priors
+following a gamma distribution with shape and rate parameters of 0.001.
+
+The Bayesian model can be described by the following equations:
+
+\begin{gather}
+x^{2} \label{eq:sys1}\\
+x^{3} \label{eq:sys2}
+\end{gather}
 
 \end{document}
 
