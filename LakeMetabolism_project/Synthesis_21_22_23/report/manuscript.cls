@@ -24,7 +24,7 @@
 
 \RequirePackage{ifpdf}
 
-\RequirePackage{amsmath,amsfonts,amssymb}
+\RequirePackage{amsmath,amsfonts,amssymb,bm}
 \RequirePackage{graphicx,xcolor}
 \RequirePackage{booktabs}
 \RequirePackage{authblk}

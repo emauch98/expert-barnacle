@@ -189,7 +189,7 @@ The monitoring period was 16 September-24 September in 2021, 22 June-3 July in 2
 and 22 June-17 July in 2023.
 
 % latex table generated in R 4.4.1 by xtable 1.8-4 package
-% Thu Dec  5 16:44:34 2024
+% Tue Dec 10 16:08:53 2024
 \begin{table}[ht]
 \centering
 \caption{Lakes included in the experiment, along with treatment
@@ -232,7 +232,7 @@ Wind data was provided as average wind speed in hourly intervals ($m\,s^{-1}$), 
 irradiation was provided as downwelling shortwave irradiation additionally
 corrected for the tilt of the sensor ($W\,m^{-2}$).
 
-\subsection{Data analysis pipeline} \label{subsec:pipeline}
+\subsection{Data pipeline} \label{subsec:pipeline}
 
 The data preparation and analysis for estimating lake metabolism was done separately for each monitoring
 period (16 September-24 September 2021, 22 June-3 July 2022, and 22 June-17 July 2023).
@@ -285,12 +285,14 @@ Some of the variables listed above have to be derived from other time series dat
 to estimating lake metabolism,
 namely do.sat, k.gas, par, and z.mix.
 do.sat was derived by using the function \texttt{o2.at.sat}, which calculates
-the equilibrium DO concentration of oxygen in water at supplied conditions.
+the equilibrium DO concentration in water at supplied conditions.
 To estimate k.gas, a gas transfer coefficient model must be fit.
 The \texttt{LakeMetabolizer} package offers different methods, and we chose
 an empirical wind-based gas exchange model, introduced by Vachon and
 Prairie in 2013 \citep{Vachon:2013}. This model not only takes wind into
-consideration, but also lake area.
+consideration, but also lake area. Notably, wind speed has to be normalized
+to 10 $m$ sensor height before fitting any gas exchange model, which is achieved
+with the function \texttt{wind.scale}.
 All models of gas exchange 
 return a k\textsubscript{600} value, a gas exchange normalized to a Schmidt 
 number (Sc) of 600, or O\textsubscript{2} at 17.5 \textdegree{}$C$.
@@ -341,7 +343,7 @@ $\alpha^{\ast}_{t}$ and process precision $\tau_{w}$:
 where $\tau_{w}$ is the precision of the process error.
 The important distinction of process and observation error is that
 process error affects the state of the system at time
-$t + k(k=0, 1, ..., T-t)$, because the state evolves dynamically, whereas
+$t + k (k=0, 1, ..., T-t)$, because the state evolves dynamically, whereas
 observation error only affects the state of the system at time $t$.
 
 Both $\tau_{v}$ and $\tau_{w}$ are given minimally informative priors
@@ -350,9 +352,768 @@ following a gamma distribution with shape and rate parameters of 0.001.
 The Bayesian model can be described by the following equations:
 
 \begin{gather}
-x^{2} \label{eq:sys1}\\
-x^{3} \label{eq:sys2}
+\alpha^{\ast}_{t} =
+\begin{cases}
+\alpha_{t-1} + \alpha_{t}, & \text{if } k_{t} = 0, \\
+\frac{\alpha_{t}}{k_{t-1}} + \frac{-\exp{(-k_{t-1})}\alpha_{t}}{k_{t-1}} +
+\exp{(-k_{t-1})}\alpha_{t-1}, & \text{otherwise},
+\end{cases} \label{eq:sys1} \\
+\alpha_{t} = \mathbf{X}_{t-1}\bm{\beta} + k_{t-1}O_{s,t-1}, \label{eq:sys2} \\
+k_{t} = \frac{K^{\ast}_{t}\Delta t}{z_{t}}. \label{eq:sys3}
 \end{gather}
+
+In this equation structure, $k_{t}$ is the coefficient of gas exchange;
+$\mathbf{X}$ is an $n \times 2$ matrix of predictor variables with $I$
+(irradiation in arbitrary light units) in the first column and $\ln{T}$ (\textdegree{}$C$) in the second
+column; $\bm{\beta}$ is a $2 \times 1$ vector of parameters to be estimated
+($\iota$, $\rho$). $\iota$ represents the parameter for Gross Primary Production
+(hereafter GPP), implying a linear relationship between GPP and irradiation, and $\rho$ represents
+the parameter for Respiration (hereafter R), implying a log-linear relationship
+between R and temperature; $O_{s}$ is the equilibrium DO concentration at
+supplied conditions; $K^{\ast}_{t}$ is a stochastic node,
+with $K^{\ast}_{t} \sim N(K_{t}, \sigma_{k})$, where $K_{t}$ is the gas exchange
+coefficient, and $\sigma_{k}$ the precision thereof; the default precision
+is $1/(0.1 \times K_{t})$; finally, $z_{t}$ is the mixed layer depth.
+
+From equation~\ref{eq:sys1}, we can see that if $k_{t} = 0$ (i.e., no gas exchange
+with the atmosphere), the oxygen levels in the water are modeled to be additive for each
+time step. Furthermore, we can see that the gas exchange coefficient is dependent
+on mixed layer depth (equation~\ref{eq:sys3}).
+
+While the estimate of gas exchange coefficient serves as prior information for $K$,
+priors for the fitted GPP and R parameters ($\iota$ and $\rho$) can also
+be defined. The default priors for $\iota$ and $\rho$ are normal distributions
+with mean 0 and variance $1 \times 10^{5}$
+($\iota_{t} \sim N(0,10^{5})$, $\rho_{t} \sim N(0,10^{5})$) and were used in our case.
+
+To estimate metabolism, the median of the posterior distribution of the parameters
+is used as a scalar estimate. Daily GPP and R estimates represent an integrated
+estimate of these scalars over a 24-hour window. Uncertainty of GPP and R
+estimates is expressed as the posterior standard deviation of the respective
+parameters ($\iota$ and $\rho$), multiplied by the square root of the corresponding
+covariate ($I$ and $\ln{T}$). NEP is the sum of GPP and R, and the standard deviation
+of NEP is the sum of the standard deviations for GPP and R.
+
+In total, 5 parameters are fit in this Bayesian model, namely $\iota$, $\rho$,
+$K$, $\tau_{v}$, and $\tau_{w}$. For all parameters except $K$, (default) minimally
+informative priors were used. Regarding $K$, as described above, its estimate
+(from the separate gas transfer coefficient model) serves as a prior.
+
+Estimates of the posterior distribution of the parameters were sampled using
+Gibbs sampling implemented in Just Another Gibbs Sampler
+(\href{https://sourceforge.net/projects/mcmc-jags/files/}{JAGS}). Prior to running
+the Bayesian model, it must be installed.
+
+\subsection{Sensitivity analysis for mixed layer depth} \label{subsec:sens}
+
+As mentioned in section~\nameref{subsec:pipeline}, we did not have the necessary
+data to estimate mixed layer depth. An initial approach to deal with that problem
+was to investigate the effect of different mixed layer depths on the daily metabolism
+estimates. For that purpose, we selected a few lakes for different monitoring
+periods (2021, 2022, 2023) and assessed the impact of various, constant
+mixed layer depths over time on the metabolism results.
+
+\begin{kframe}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Lade nötiges Paket: grid}}\end{kframe}datetime  dsr_cor      wsp     Pond   do.obs      wtr 
+       0        0        0        0      154        0 
+[1] 0
+
+
+{\centering \includegraphics[width=\maxwidth]{plots/psensanal-1} 
+
+}
+
+
+[1] 0
+[1] "Points removed due to incomplete day or duplicated time step: 0"
+[1] "NA's added to fill in time series: 0"
+[1] "using allK model"
+\begin{kframe}
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# module glm loaded}}\end{kframe}Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16998
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16988
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16925
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17003
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17076
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16921
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16947
+
+Initializing model
+
+[1] "Points removed due to incomplete day or duplicated time step: 0"
+[1] "NA's added to fill in time series: 0"
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16998
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16988
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16925
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17003
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17076
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16921
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16947
+
+Initializing model
+
+[1] "Points removed due to incomplete day or duplicated time step: 0"
+[1] "NA's added to fill in time series: 0"
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16998
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16988
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16925
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17003
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17076
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16921
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16947
+
+Initializing model
+
+[1] "Points removed due to incomplete day or duplicated time step: 0"
+[1] "NA's added to fill in time series: 0"
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16998
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16988
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16925
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17003
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17076
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16921
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16947
+
+Initializing model
+
+[1] "Points removed due to incomplete day or duplicated time step: 0"
+[1] "NA's added to fill in time series: 0"
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16998
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16988
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16925
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17003
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17076
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16921
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16947
+
+Initializing model
+
+[1] "Points removed due to incomplete day or duplicated time step: 0"
+[1] "NA's added to fill in time series: 0"
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16998
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16988
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16925
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17003
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17076
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16921
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16947
+
+Initializing model
+
+[1] "Points removed due to incomplete day or duplicated time step: 0"
+[1] "NA's added to fill in time series: 0"
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16998
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16988
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16925
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17003
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17076
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16921
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16947
+
+Initializing model
+
+[1] "Points removed due to incomplete day or duplicated time step: 0"
+[1] "NA's added to fill in time series: 0"
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16998
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16988
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16925
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17003
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 17076
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16921
+
+Initializing model
+
+[1] "using allK model"
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 719
+   Unobserved stochastic nodes: 1442
+   Total graph size: 16947
+
+Initializing model
+
+$y
+expression(paste("R (", O[2], " in mg L", NULL^-1, " day", NULL^-1, 
+    ")"))
+
+attr(,"class")
+[1] "labels"
+$y
+expression(paste("NEP (", O[2], " in mg L", NULL^-1, " day", 
+    NULL^-1, ")"))
+
+attr(,"class")
+[1] "labels"
+\begin{kframe}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in grid.Call(C\_textBounds, as.graphicsAnnot(x\$label), x\$x, x\$y, : font metrics unknown for character 0x0a in encoding cp1252}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in grid.Call(C\_textBounds, as.graphicsAnnot(x\$label), x\$x, x\$y, : font metrics unknown for character 0x0a in encoding cp1252}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in grid.Call.graphics(C\_text, as.graphicsAnnot(x\$label), x\$x, x\$y, : font metrics unknown for character 0x0a in encoding cp1252}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in grid.Call.graphics(C\_text, as.graphicsAnnot(x\$label), x\$x, x\$y, : font metrics unknown for character 0x0a in encoding cp1252}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in grid.Call(C\_textBounds, as.graphicsAnnot(x\$label), x\$x, x\$y, : font metrics unknown for character 0x0a in encoding cp1252}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in grid.Call(C\_textBounds, as.graphicsAnnot(x\$label), x\$x, x\$y, : font metrics unknown for character 0x0a in encoding cp1252}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in grid.Call.graphics(C\_text, as.graphicsAnnot(x\$label), x\$x, x\$y, : font metrics unknown for character 0x0a in encoding cp1252}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in grid.Call.graphics(C\_text, as.graphicsAnnot(x\$label), x\$x, x\$y, : font metrics unknown for character 0x0a in encoding cp1252}}\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{plots/psensanal-2} 
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \end{document}
 
