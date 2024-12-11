@@ -189,7 +189,7 @@ The monitoring period was 16 September-24 September in 2021, 22 June-3 July in 2
 and 22 June-17 July in 2023.
 
 % latex table generated in R 4.4.1 by xtable 1.8-4 package
-% Wed Dec 11 09:32:21 2024
+% Wed Dec 11 10:21:21 2024
 \begin{table}[ht]
 \centering
 \caption{Lakes included in the experiment, along with treatment
@@ -355,9 +355,9 @@ The Bayesian model can be described by the following equations:
 \begin{gather}
 \alpha^{\ast}_{t} =
 \begin{cases}
-\alpha_{t-1} + \alpha_{t}, & \text{if } k_{t} = 0, \\
+\alpha_{t-1} + \alpha_{t} & \text{if } k_{t} = 0, \\
 \frac{\alpha_{t}}{k_{t-1}} + \frac{-\exp{(-k_{t-1})}\alpha_{t}}{k_{t-1}} +
-\exp{(-k_{t-1})}\alpha_{t-1}, & \text{otherwise},
+\exp{(-k_{t-1})}\alpha_{t-1} & \text{otherwise},
 \end{cases} \label{eq:sys1} \\
 \alpha_{t} = \mathbf{X}_{t-1}\bm{\beta} + k_{t-1}O_{s,t-1}, \label{eq:sys2} \\
 k_{t} = \frac{K^{\ast}_{t}\Delta t}{z_{t}}. \label{eq:sys3}
@@ -408,22 +408,38 @@ the Bayesian model, it must be installed.
 \subsection{Sensitivity analysis for mixed layer depth} \label{subsec:sens}
 
 As mentioned in section~\nameref{subsec:pipeline}, we did not have the necessary
-data to estimate mixed layer depth. An initial approach to deal with that problem
-was to investigate the effect of different mixed layer depths on the daily metabolism
+data to estimate mixed layer depth. An initial approach to assess this issue
+was to investigate the effect of different mixed layer depths on daily metabolism
 estimates. For that purpose, we selected a few lakes for different monitoring
-periods (2021, 2022, 2023) and assessed the impact of various, constant
-mixed layer depths over time on the metabolism results.
+periods (2021, 2022, 2023). Notably, mixed layer
+was held constant, which is rarely the case in reality.
+In Figure~\ref{fig:sens}, an example of a sensitivity analysis for lake
+B1P1 in 2021 is depicted. Plots A-C depict the daily GPP, R, and NEP estimates
+for different mixed layer depths. For each mixed layer value, a separate model
+was fitted, holding all other covariates equal.
+Apparently, mixed layer depth substantially
+impacts respiration, where a smaller mixed layer depth is associated with
+higher (more negative) R. In contrast, GPP is barely affected by mixed
+layer depth. Plots D-H show the input variables required to fit the metabolism
+models, apart from mixed layer depth. Since mixed layer particularly
+effects daily R estimates, careful consideration with regards to overcoming
+this limitation is required. Notably, the effect of variation in mixed layer
+depth was consistent across most lakes and monitoring periods
 
 
 
+\vspace{0.5cm}
+\begin{figure}
+
+{\centering \includegraphics[width=\maxwidth]{plots/psensanal2-1} 
+
+}
+
+\caption{\label{fig:sens}Example of a sensitivity analysis for mixed layer depth in lake B1P1, 2021. Figures A-C depict GPP, R, and NEP estimates for different mixed layer depths. Figures D-H depict time series of input variables needed for metabolism estimation.}\label{fig:sensanal2}
+\end{figure}
 
 
-
-
-
-
-
-
+\vspace{0.5cm}
 
 
 
