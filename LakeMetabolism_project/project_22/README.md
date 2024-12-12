@@ -11,26 +11,34 @@ lake metabolism.
 	- "make_data_2022": script to process and merge all the sondes
 		time series of the ponds
 	- "analysis_metabolism_...": metabolism analysis of the different ponds
-	- "make_figure_metabolism_2022": creating the results figures for the metabolism analysis
+	- "make_figure_metabolism_22": creating preliminary results figures for the metabolism analysis
 	- "code.Rproj": the R project associated with this directory
-	- "profile_plots_2022": plots of temperature profiles to estimate actively mixed layer depth needed for the metabolism analysis
-	- "analysis_choro_rfu" is not relevant for this project
+	- "make_sonde_profiles_2022": making the cut and merged profile dataset of 2022
+	- "metadata_prep_2022": preparing weather data for metabolism analysis 2022
+	- "SensAnalysisZmix_ERL85": Code for sensitivity analysis for mixed layer depth of ERL85, 2022
 - data:
-	- raw and processed data from the sondes, as well as intermetiate processing steps
-	- metadata regarding wind and irradiation:
-		- Source wind data: https://www.dmi.dk/lokationarkiv/show/GL/3421711/Narsarsuaq/#arkiv
-		- Source irradiation data: https://dataverse.geus.dk/dataset.xhtml?persistentId=doi:10.22008/FK2/IW73UU
-	- "sonde_profiling" contains vertical profiles of the pond
+	- "data_sondes_IntermProcessingSteps": intermediate processing steps of sonde data
+	- "metadata_metabolism_analysis": metadata regarding wind and irradiation:
+		- Source: https://dataverse.geus.dk/dataset.xhtml?persistentId=doi:10.22008/FK2/IW73UU. Dataset name: QAS_L_hour.csv
+	- "processed_data_sondes": processed sonde data to be used for further analysis
+	- "raw_data_sondes": raw sonde data
+	- "sondes_profiling_cut": merged and cut dataset from all profiling done in Greenland in 2022
+	- "sondes_profiling_raw": individual raw profiling datasets
 	- "ponds_sonde_key": information on the sonde and treatment for the different ponds
+
 - outliers_sondes: folder containing diagnostic graphs from outlier processing
 - results_metabolism: All results from the metabolism analysis
+- results_profiling: Results from plotting the cut and merged profile dataset of 2022
+- results_SensAnalysis: Results from Sensitivity analysis with regards to mixed layer depth for some ponds
 
 3. Executing the project:
 	1. Install JAGS: https://sourceforge.net/projects/mcmc-jags/files/
-		This is required to run the Bayesian model for lake metabolism.
-	2. To execute the code, open the R-project under code/...; Open the script
-		you want to execute and run the code (no change of filepaths required since
-		we work with an Rproject and relative file paths; Rprojects anchor the
+		This is required to run the Bayesian models for lake metabolism.
+	2. To execute the code, open the R-project file (.Rproj) under code/; Open the script
+		you want to execute
+	3. Install missing packages
+	4. Run the code (no change of filepaths required since
+		we work with an R projects and relative file paths; Rprojects anchor the
 		working directory to where they are situated, in our case under code/;
 		the file paths are relative to that Rproject)
 
@@ -38,5 +46,3 @@ lake metabolism.
 	Don't hesitate to contact me if questions pop up.
 	- Emanuel Mauch
 	- Private: emanuelmauch@gmail.com
-
-

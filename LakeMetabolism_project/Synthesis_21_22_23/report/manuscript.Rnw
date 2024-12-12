@@ -742,12 +742,12 @@ p8 = ggplot((all)) + theme_light() +
 fig2 <- ggarrange(p1 + rremove("xlab"), p2 + rremove("xlab"), p3 + rremove("xlab"),
                   p4 + rremove("xlab"), p5 + rremove("xlab"), p6 + rremove("xlab"),
                   p7 + rremove("xlab"), p8 + rremove("xlab"), nrow=4, ncol = 2,
-                  common.legend = TRUE, legend = "bottom",
-                  labels = c("A", "B", "C", "D", "E", "F", "G", "H"),label.x = -0.045,
+                  common.legend = TRUE, legend = "top",
+                  labels = c("A", "B", "C", "D", "E", "F", "G", "H"),label.x = -0.043,
                   align = "hv")
 
 fig2 <- annotate_figure(fig2) +
-  theme(plot.margin = margin(t = 5, r = 12, b = 5, l = 12))
+  theme(plot.margin = margin(t = 5, r = 8, b = 5, l = 12))
 print(fig2)
 @
 \vspace{0.5cm}
