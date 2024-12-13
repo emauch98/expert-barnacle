@@ -26,7 +26,7 @@ all_23 <- fread("../../project_23/results_metabolism/merged_results_complete_202
 
 # Step 2: Create datasets for pond-wise means and standard errors of means by year
 means_21 <- all_21 %>%
-  group_by(Treatment, Pond) %>%
+  group_by(Treatment,Pond) %>%
   summarise(
     mean_GPP = mean(GPP),
     mean_R = mean(R),
@@ -38,7 +38,7 @@ means_21 <- all_21 %>%
   )
 
 means_22 <- all_22 %>%
-  group_by(Treatment, Pond) %>%
+  group_by(Treatment,Pond) %>%
   summarise(
     mean_GPP = mean(GPP),
     mean_R = mean(R),
@@ -50,7 +50,7 @@ means_22 <- all_22 %>%
   )
 
 means_23 <- all_23 %>%
-  group_by(Treatment, Pond) %>%
+  group_by(Treatment,Pond) %>%
   summarise(
     mean_GPP = mean(GPP),
     mean_R = mean(R),
@@ -61,14 +61,12 @@ means_23 <- all_23 %>%
     .groups = "drop"
   )
 
-# Treatment as fa
-
 # Step 3: Plot -----------------------------------------------------------------
 # Overall GPP plots ------------------------------------------------------------
 # 2021
 p1 <- ggplot() + theme_minimal() +
   geom_jitter(data = all_21, aes(x = Treatment, y = GPP, color = Treatment),
-              width = 0.1, size = 2, alpha = 0.2) +
+              width = 0.1, size = 2, alpha = 0.1) +
   
   geom_point(data = means_21, aes(x = Treatment, y = mean_GPP, col = Treatment,
                                   group = Pond),
@@ -76,8 +74,7 @@ p1 <- ggplot() + theme_minimal() +
   
   geom_errorbar(data = means_21, aes(x = Treatment, ymin = mean_GPP-se_mean_GPP,
                                      ymax = mean_GPP+se_mean_GPP, col = Treatment,
-                                     group = Pond),
-                position = position_dodge(width = 0.1), width = 0.7) +
+                                     group = Pond), width = 0.3) +
   
   labs(title = "2021",
        y = expression(paste("GPP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
@@ -87,7 +84,7 @@ p1 <- ggplot() + theme_minimal() +
 # 2022
 p2 <- ggplot() + theme_minimal() +
   geom_jitter(data = all_22, aes(x = Treatment, y = GPP, color = Treatment),
-              width = 0.1, size = 2, alpha = 0.2) +
+              width = 0.1, size = 2, alpha = 0.1) +
   
   geom_point(data = means_22, aes(x = Treatment, y = mean_GPP, col = Treatment,
                                   group = Pond),
@@ -95,8 +92,7 @@ p2 <- ggplot() + theme_minimal() +
   
   geom_errorbar(data = means_22, aes(x = Treatment, ymin = mean_GPP-se_mean_GPP,
                                      ymax = mean_GPP+se_mean_GPP, col = Treatment,
-                                     group = Pond),
-                position = position_dodge(width = 0.1), width = 0.7) +
+                                     group = Pond), width = 0.3) +
   
   labs(title = "2022",
        y = expression(paste("GPP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
@@ -106,7 +102,7 @@ p2 <- ggplot() + theme_minimal() +
 # 2023
 p3 <- ggplot() + theme_minimal() +
   geom_jitter(data = all_23, aes(x = Treatment, y = GPP, color = Treatment),
-              width = 0.1, size = 2, alpha = 0.2) +
+              width = 0.1, size = 2, alpha = 0.1) +
   
   geom_point(data = means_23, aes(x = Treatment, y = mean_GPP, col = Treatment,
                                   group = Pond),
@@ -114,8 +110,7 @@ p3 <- ggplot() + theme_minimal() +
   
   geom_errorbar(data = means_23, aes(x = Treatment, ymin = mean_GPP-se_mean_GPP,
                                      ymax = mean_GPP+se_mean_GPP, col = Treatment,
-                                     group = Pond),
-                position = position_dodge(width = 0.1), width = 0.7) +
+                                     group = Pond), width = 0.3) +
   
   labs(title = "2023",
        y = expression(paste("GPP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
@@ -126,7 +121,7 @@ p3 <- ggplot() + theme_minimal() +
 # 2021
 p4 <- ggplot() + theme_minimal() +
   geom_jitter(data = all_21, aes(x = Treatment, y = R, color = Treatment),
-              width = 0.1, size = 2, alpha = 0.2) +
+              width = 0.1, size = 2, alpha = 0.1) +
   
   geom_point(data = means_21, aes(x = Treatment, y = mean_R, col = Treatment,
                                   group = Pond),
@@ -134,40 +129,37 @@ p4 <- ggplot() + theme_minimal() +
   
   geom_errorbar(data = means_21, aes(x = Treatment, ymin = mean_R-se_mean_R,
                                      ymax = mean_R+se_mean_R, col = Treatment,
-                                     group = Pond),
-                position = position_dodge(width = 0.1), width = 0.7) +
+                                     group = Pond), width = 0.3) +
   labs(y = expression(paste("R (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
   theme(axis.title.x = element_blank())
 
 # 2022
 p5 <- ggplot() + theme_minimal() +
   geom_jitter(data = all_22, aes(x = Treatment, y = R, color = Treatment),
-              width = 0.1, size = 2, alpha = 0.2) +
+              width = 0.1, size = 2, alpha = 0.1) +
   
   geom_point(data = means_22, aes(x = Treatment, y = mean_R, col = Treatment,
                                   group = Pond),
-             size = 4, position = position_dodge(width = 0.1)) +
+             size = 4, position = position_dodge(width = 0.2)) +
   
   geom_errorbar(data = means_22, aes(x = Treatment, ymin = mean_R-se_mean_R,
                                      ymax = mean_R+se_mean_R, col = Treatment,
-                                     group = Pond),
-                position = position_dodge(width = 0.1), width = 0.7) +
+                                     group = Pond), width = 0.3) +
   labs(y = expression(paste("R (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
   theme(axis.title.x = element_blank())
 
 # 2023
 p6 <- ggplot() + theme_minimal() +
   geom_jitter(data = all_23, aes(x = Treatment, y = R, color = Treatment),
-              width = 0.1, size = 2, alpha = 0.2) +
+              width = 0.1, size = 2, alpha = 0.1) +
   
   geom_point(data = means_23, aes(x = Treatment, y = mean_R, col = Treatment,
                                   group = Pond),
-             size = 4, position = position_dodge(width = 0.1)) +
+             size = 4, position = position_dodge(width = 0.2)) +
   
   geom_errorbar(data = means_23, aes(x = Treatment, ymin = mean_R-se_mean_R,
                                      ymax = mean_R+se_mean_R, col = Treatment,
-                                     group = Pond),
-                position = position_dodge(width = 0.1), width = 0.7) +
+                                     group = Pond), width = 0.3) +
   labs(y = expression(paste("R (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
   theme(axis.title.x = element_blank())
 
@@ -175,7 +167,7 @@ p6 <- ggplot() + theme_minimal() +
 # 2021
 p7 <- ggplot() + theme_minimal() +
   geom_jitter(data = all_21, aes(x = Treatment, y = NEP, color = Treatment),
-              width = 0.1, size = 2, alpha = 0.2) +
+              width = 0.1, size = 2, alpha = 0.1) +
   
   geom_point(data = means_21, aes(x = Treatment, y = mean_NEP, col = Treatment,
                                   group = Pond),
@@ -183,8 +175,7 @@ p7 <- ggplot() + theme_minimal() +
   
   geom_errorbar(data = means_21, aes(x = Treatment, ymin = mean_NEP-se_mean_NEP,
                                      ymax = mean_NEP+se_mean_NEP, col = Treatment,
-                                     group = Pond),
-                position = position_dodge(width = 0.1), width = 0.7) +
+                                     group = Pond), width = 0.3) +
   
   labs(y = expression(paste("NEP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
   theme(axis.title.x = element_blank())
@@ -192,7 +183,7 @@ p7 <- ggplot() + theme_minimal() +
 # 2022
 p8 <- ggplot() + theme_minimal() +
   geom_jitter(data = all_22, aes(x = Treatment, y = NEP, color = Treatment),
-              width = 0.1, size = 2, alpha = 0.2) +
+              width = 0.1, size = 2, alpha = 0.1) +
   
   geom_point(data = means_22, aes(x = Treatment, y = mean_NEP, col = Treatment,
                                   group = Pond),
@@ -200,8 +191,7 @@ p8 <- ggplot() + theme_minimal() +
   
   geom_errorbar(data = means_22, aes(x = Treatment, ymin = mean_NEP-se_mean_NEP,
                                      ymax = mean_NEP+se_mean_NEP, col = Treatment,
-                                     group = Pond),
-                position = position_dodge(width = 0.1), width = 0.7) +
+                                     group = Pond), width = 0.3) +
   
   labs(y = expression(paste("NEP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
   theme(axis.title.x = element_blank())
@@ -209,7 +199,7 @@ p8 <- ggplot() + theme_minimal() +
 # 2023
 p9 <- ggplot() + theme_minimal() +
   geom_jitter(data = all_23, aes(x = Treatment, y = NEP, color = Treatment),
-              width = 0.1, size = 2, alpha = 0.2) +
+              width = 0.1, size = 2, alpha = 0.1) +
   
   geom_point(data = means_23, aes(x = Treatment, y = mean_NEP, col = Treatment,
                                   group = Pond),
@@ -217,8 +207,7 @@ p9 <- ggplot() + theme_minimal() +
   
   geom_errorbar(data = means_23, aes(x = Treatment, ymin = mean_NEP-se_mean_NEP,
                                      ymax = mean_NEP+se_mean_NEP, col = Treatment,
-                                     group = Pond),
-                position = position_dodge(width = 0.1), width = 0.7) +
+                                     group = Pond), width = 0.3) +
   
   labs(y = expression(paste("NEP (", O[2], " in mg L", NULL^-1, " day", NULL^-1, ")"))) +
   theme(axis.title.x = element_blank())
@@ -228,8 +217,17 @@ p9 <- ggplot() + theme_minimal() +
 p10 <- ggarrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, nrow=3, ncol = 3,
                  common.legend = TRUE, legend = "bottom")
 
+p11 <- ggarrange(p1, p2, p3, ncol = 3,
+                 common.legend = TRUE, legend = "bottom")
+
 # Save the plot as a .png
 png("../results_metabolism_synthesis/overall_metabolism.png",
     width = 1000, height = 800)
 plot(p10)
+dev.off()
+
+# Save the plot as a .png
+png("../results_metabolism_synthesis/overall_GPP_pond_wise.png",
+    width = 700, height = 400, res = 90)
+plot(p11)
 dev.off()
